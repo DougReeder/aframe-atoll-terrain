@@ -5,7 +5,7 @@
     <title>aframe-terrain-plain primitive</title>
     <meta name="description" content="An example scene with an aframe-terrain-plain and some polyhedrons">
     <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.0/simple-sun-sky.js"></script>
+    <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.2/simple-sun-sky.js"></script>
     <script src="aframe-terrain-plain.js"></script>
     <!--<script src="https://unpkg.com/aframe-terrain-plain@^0.9.0/aframe-terrain-plain.js"></script>-->
     <script>
@@ -30,13 +30,13 @@ AFRAME.registerComponent('moving-sun', {
     </script>
 </head>
 <body>
-<a-scene moving-sun>
+<a-scene moving-sun stats>
     <a-simple-sun-sky sun-position="0.7 0.4 -1"></a-simple-sun-sky>
     <a-entity light="type: ambient; color: #BBB"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
     <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <a-terrain-plain position="0 0 0" rotation="0 0 0" unit-size="10" log="true" color="#7BC8A4" metalness="0.1" roughness="0.75"></a-terrain-plain>
+    <a-terrain-plain unit-size="1" size="100" log="true" color="#7BC8A4" metalness="0" roughness="0.95"></a-terrain-plain>
 </a-scene>
 </body>
 </html>
