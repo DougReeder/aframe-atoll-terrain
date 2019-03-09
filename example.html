@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>aframe-terrain-plain primitive</title>
+    <meta name="description" content="An example scene with an aframe-terrain-plain and some polyhedrons">
+    <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.0/simple-sun-sky.js"></script>
+    <script src="aframe-terrain-plain.js"></script>
+    <!--<script src="https://unpkg.com/aframe-terrain-plain@^0.9.0/aframe-terrain-plain.js"></script>-->
+    <script>
+AFRAME.registerComponent('moving-sun', {
+    init: function () {
+        this.positionSph = new THREE.Spherical(1, Math.PI/2, 0);
+        this.position = new THREE.Vector3();
+        this.sss = document.querySelector('a-simple-sun-sky');
+        this.directional = document.getElementById('directional');
+    },
+
+    tick: function (time) {
+        this.positionSph.phi = Math.PI * 0.4 + Math.sin(time / 32000 * 2 * Math.PI) * 0.4;
+        this.positionSph.theta = Math.PI + Math.sin(time / 48000 * 2 * Math.PI) * 0.6;
+        this.position.setFromSpherical(this.positionSph);
+        let positionStr = this.position.x + ' ' + this.position.y + ' ' + this.position.z;
+//        console.log(positionStr);
+        this.sss.setAttribute('sun-position', positionStr);
+        this.directional.setAttribute('position', positionStr);
+    }
+});
+    </script>
+</head>
+<body>
+<a-scene moving-sun>
+    <a-simple-sun-sky sun-position="0.7 0.4 -1"></a-simple-sun-sky>
+    <a-entity light="type: ambient; color: #BBB"></a-entity>
+    <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
+
+    <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
+    <a-terrain-plain position="0 0 0" rotation="0 0 0" unit-size="10" log="true" color="#7BC8A4" metalness="0.1" roughness="0.75"></a-terrain-plain>
+</a-scene>
+</body>
+</html>
