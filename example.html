@@ -18,8 +18,8 @@ AFRAME.registerComponent('moving-sun', {
     },
 
     tick: function (time) {
-        this.positionSph.phi = Math.PI * 0.4 + Math.sin(time / 32000 * 2 * Math.PI) * 0.4;
-        this.positionSph.theta = Math.PI + Math.sin(time / 48000 * 2 * Math.PI) * 0.6;
+        this.positionSph.phi = Math.PI * (0.3 - 0.15 * Math.sin(time / 32000 * 2 * Math.PI));
+        this.positionSph.theta = 2 * Math.PI * ( 0.25 + time / 48000);
         this.position.setFromSpherical(this.positionSph);
         let positionStr = this.position.x + ' ' + this.position.y + ' ' + this.position.z;
 //        console.log(positionStr);
@@ -30,13 +30,13 @@ AFRAME.registerComponent('moving-sun', {
     </script>
 </head>
 <body>
-<a-scene moving-sun stats>
+<a-scene moving-sun>
     <a-simple-sun-sky sun-position="0.7 0.4 -1"></a-simple-sun-sky>
-    <a-entity light="type: ambient; color: #BBB"></a-entity>
+    <a-entity light="type: ambient; color: #888"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
     <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <a-terrain-plain unit-size="1" size="100" log="true" color="#7BC8A4" metalness="0" roughness="0.95"></a-terrain-plain>
+    <a-terrain-plain unit-size="1" size="30" far="4000" log="true" flat-shading="false" color="#c2b280" metalness="0" roughness="0.95"></a-terrain-plain>
 </a-scene>
 </body>
 </html>

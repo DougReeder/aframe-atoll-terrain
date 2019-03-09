@@ -6,15 +6,18 @@ AFRAME.registerGeometry('terrain-plain', {
     schema: {
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
         size: {type: 'number', default: 10, min: 1},
+        far: {type: 'number', default: 4000},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
         const SQRT3HALF = Math.sqrt(3) / 2;
         const INNER_RADIUS = data.size * data.unitSize + 0.0001;
         const OUTER_RADIUS = (data.size+1) * data.unitSize + 0.0001;
+        const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
         const SCAN_SIZE = Math.ceil(data.size * 1.16);   // empirically determined
         if (data.log) {
-            console.log("init terrain-plain unitSize="+data.unitSize, "size="+data.size, "SCAN_SIZE="+SCAN_SIZE)
+            console.log("terrain-plain unitSize="+data.unitSize, "size="+data.size, "SCAN_SIZE="+SCAN_SIZE,
+                "FAR="+FAR);
         }
 
         let geometry = new THREE.Geometry();
@@ -22,7 +25,6 @@ AFRAME.registerGeometry('terrain-plain', {
         let vertexLookup = {};
         vertexLookup[-SCAN_SIZE-1] = {};
         let vertexInd = 0;
-        // console.log("vertexLookup:", vertexLookup);
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
             vertexLookup[i] = {};
             for (let j= -SCAN_SIZE; j<=SCAN_SIZE; ++j) {
@@ -30,7 +32,14 @@ AFRAME.registerGeometry('terrain-plain', {
                 let z = (j - i/2) * data.unitSize;
                 let r = Math.sqrt(x*x + z*z);
                 if (r <= OUTER_RADIUS) {
-                    let y = r <= INNER_RADIUS ? 0.75 * (1 + Math.sin(x/3) * Math.sin(z/4)) : 0;
+                    let y;
+                    if (r <= INNER_RADIUS) {
+                        y = 2 * Math.sin(x/3) * Math.sin(z/4);
+                    } else {
+                        x *= FAR / r;
+                        z *= FAR / r;
+                        y = 0;
+                    }
                     // if (data.log) {console.log("i=" + i, "j=" + j, "x=" + x, "z=" + z, "y=" + y)}
 
                     vertexLookup[i][j] = vertexInd++;
@@ -49,7 +58,6 @@ AFRAME.registerGeometry('terrain-plain', {
                 }
             }
         }
-        // console.log("vertexLookup:", vertexLookup);
         geometry.computeBoundingBox();
         geometry.mergeVertices();
         geometry.computeFaceNormals();
@@ -76,6 +84,7 @@ AFRAME.registerPrimitive('a-terrain-plain', {
     mappings: {
         'unit-size': 'geometry.unitSize',
         'size': 'geometry.size',
+        'far': 'geometry.far',
         'log': 'geometry.log',
         'color': 'material.color',
         'metalness': 'material.metalness',
