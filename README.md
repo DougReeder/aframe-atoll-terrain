@@ -8,4 +8,3 @@ Uses equilateral triangles for efficiency.
 
 [live example scene](https://dougreeder.github.io/aframe-terrain-plain/example.html)
 
-To avoid rays on the plain, keep the terrain at the edge of the high-resolution area near zero elevation.

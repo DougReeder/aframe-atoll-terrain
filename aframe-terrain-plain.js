@@ -11,7 +11,8 @@ AFRAME.registerGeometry('terrain-plain', {
     },
     init: function (data) {
         const SQRT3HALF = Math.sqrt(3) / 2;
-        const INNER_RADIUS = data.size * data.unitSize + 0.0001;
+        const INNER_RADIUS = (data.size-1) * data.unitSize + 0.0001;
+        const MIDDLE_RADIUS = data.size * data.unitSize + 0.0001;
         const OUTER_RADIUS = (data.size+1) * data.unitSize + 0.0001;
         const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
         const SCAN_SIZE = Math.ceil(data.size * 1.16);   // empirically determined
@@ -34,7 +35,13 @@ AFRAME.registerGeometry('terrain-plain', {
                 if (r <= OUTER_RADIUS) {
                     let y;
                     if (r <= INNER_RADIUS) {
-                        y = 2 * Math.sin(x/3) * Math.sin(z/4);
+                        y = 2 * Math.sin(x / 3) * Math.sin(z / 4);
+
+                        if (Math.abs(y) > INNER_RADIUS - r) {
+                            y = Math.sign(y) * (INNER_RADIUS - r);
+                        }
+                    } else if (r <= MIDDLE_RADIUS) {
+                        y = 0;
                     } else {
                         x *= FAR / r;
                         z *= FAR / r;
