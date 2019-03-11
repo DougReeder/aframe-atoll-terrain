@@ -4,21 +4,24 @@
 
 AFRAME.registerGeometry('terrain-plain', {
     schema: {
+        middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
-        size: {type: 'number', default: 10, min: 1},
         far: {type: 'number', default: 4000},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
         const SQRT3HALF = Math.sqrt(3) / 2;
-        const INNER_RADIUS = (data.size-1) * data.unitSize + 0.0001;
-        const MIDDLE_RADIUS = data.size * data.unitSize + 0.0001;
-        const OUTER_RADIUS = (data.size+1) * data.unitSize + 0.0001;
+
+        const SIZE = Math.round(data.middleRadius / data.unitSize);
+        const UNIT_SIZE = data.middleRadius / SIZE;
+
+        const INNER_RADIUS = (SIZE-1) * UNIT_SIZE + 0.0001;
+        const OUTER_RADIUS = (SIZE+1) * UNIT_SIZE + 0.0001;
         const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
-        const SCAN_SIZE = Math.ceil(data.size * 1.16);   // empirically determined
+        const SCAN_SIZE = Math.ceil(SIZE * 1.16);   // empirically determined
         if (data.log) {
-            console.log("terrain-plain unitSize="+data.unitSize, "size="+data.size, "SCAN_SIZE="+SCAN_SIZE,
-                "FAR="+FAR);
+            console.log("terrain-plain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
+                "middleRadius="+data.middleRadius, "FAR="+FAR);
         }
 
         let geometry = new THREE.Geometry();
@@ -29,8 +32,8 @@ AFRAME.registerGeometry('terrain-plain', {
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
             vertexLookup[i] = {};
             for (let j= -SCAN_SIZE; j<=SCAN_SIZE; ++j) {
-                let x = i * SQRT3HALF * data.unitSize;
-                let z = (j - i/2) * data.unitSize;
+                let x = i * SQRT3HALF * UNIT_SIZE;
+                let z = (j - i/2) * UNIT_SIZE;
                 let r = Math.sqrt(x*x + z*z);
                 if (r <= OUTER_RADIUS) {
                     let y;
@@ -40,7 +43,7 @@ AFRAME.registerGeometry('terrain-plain', {
                         if (Math.abs(y) > INNER_RADIUS - r) {
                             y = Math.sign(y) * (INNER_RADIUS - r);
                         }
-                    } else if (r <= MIDDLE_RADIUS) {
+                    } else if (r <= data.middleRadius) {
                         y = 0;
                     } else {
                         x *= FAR / r;
@@ -89,8 +92,8 @@ AFRAME.registerPrimitive('a-terrain-plain', {
     },
 
     mappings: {
+        'middle-radius': 'geometry.middleRadius',
         'unit-size': 'geometry.unitSize',
-        'size': 'geometry.size',
         'far': 'geometry.far',
         'log': 'geometry.log',
         'color': 'material.color',
