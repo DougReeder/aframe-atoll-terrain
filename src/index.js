@@ -1,4 +1,4 @@
-// aframe-terrain-plain.js - An A-Frame WebVR primitive with high-resolution terrain surrounded by a low-res plain
+// aframe-terrain-plain - An A-Frame WebVR primitive with high-resolution terrain surrounded by a low-res plain
 // Copyright © 2019 P. Douglas Reeder under the MIT License
 
 
