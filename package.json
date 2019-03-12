@@ -2,10 +2,13 @@
   "name": "aframe-terrain-plain",
   "version": "0.1.0",
   "description": "An A-Frame WebVR primitive that has a circle of high-resolution terrain near the origin, surrounded by a low-resolution plain that stretches to the horizon",
-  "main": "index.js",
   "scripts": {
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DougReeder/aframe-terrain-plain.git"
   },
   "keywords": [
     "terrain",
@@ -18,6 +21,10 @@
   ],
   "author": "Doug Reeder <reeder.29@gmail.com>",
   "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/DougReeder/aframe-terrain-plain/issues"
+  },
+  "homepage": "https://github.com/DougReeder/aframe-terrain-plain#readme",
   "devDependencies": {
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
