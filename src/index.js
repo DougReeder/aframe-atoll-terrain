@@ -1,6 +1,8 @@
 // aframe-terrain-plain - An A-Frame WebVR primitive with high-resolution terrain surrounded by a low-res plain
 // Copyright © 2019 P. Douglas Reeder under the MIT License
+// Written using Perlin noise & ideas from aframe-mountain-component by Kevin Ngo.
 
+import ImprovedNoise from './ImprovedNoise';
 
 AFRAME.registerGeometry('terrain-plain', {
     schema: {
@@ -10,6 +12,8 @@ AFRAME.registerGeometry('terrain-plain', {
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
+        const perlin = new ImprovedNoise();
+        const SEED = Math.random() * 100;
         const SQRT3HALF = Math.sqrt(3) / 2;
 
         const SIZE = Math.round(data.middleRadius / data.unitSize);
@@ -18,6 +22,7 @@ AFRAME.registerGeometry('terrain-plain', {
         const INNER_RADIUS = (SIZE-1) * UNIT_SIZE + 0.0001;
         const OUTER_RADIUS = (SIZE+1) * UNIT_SIZE + 0.0001;
         const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
+        const PLATEAU_EDGE = INNER_RADIUS / 4;
         const SCAN_SIZE = Math.ceil(SIZE * 1.16);   // empirically determined
         if (data.log) {
             console.log("terrain-plain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
@@ -38,10 +43,20 @@ AFRAME.registerGeometry('terrain-plain', {
                 if (r <= OUTER_RADIUS) {
                     let y;
                     if (r <= INNER_RADIUS) {
-                        y = 2 * Math.sin(x / 3) * Math.sin(z / 4);
+                        y = 10;
+                        // generates smooth noisy terrain
+                        for (let quality = 25; quality <= 1500; quality *= 5) {
+                            y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 150);
+                        }
 
-                        if (Math.abs(y) > INNER_RADIUS - r) {
-                            y = Math.sign(y) * (INNER_RADIUS - r);
+                        y *= Math.min(INNER_RADIUS - r, PLATEAU_EDGE) / PLATEAU_EDGE;
+
+                        let quality = 5;
+                        y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * quality / 2;
+
+                        // flattens the bottom, so it's continuous with the plain
+                        if (y < 0) {
+                            y = 0;
                         }
                     } else if (r <= data.middleRadius) {
                         y = 0;
@@ -50,7 +65,6 @@ AFRAME.registerGeometry('terrain-plain', {
                         z *= FAR / r;
                         y = 0;
                     }
-                    // if (data.log) {console.log("i=" + i, "j=" + j, "x=" + x, "z=" + z, "y=" + y)}
 
                     vertexLookup[i][j] = vertexInd++;
                     geometry.vertices.push(new THREE.Vector3(x, y, z));
@@ -81,13 +95,11 @@ AFRAME.registerPrimitive('a-terrain-plain', {
     defaultComponents: {
         geometry: {
             primitive: 'terrain-plain',
+            middleRadius: 100,
             unitSize: 1,
-            size: 1,
             log: false
         },
         material: {
-            shader: 'standard',
-            side: 'front'
         }
     },
 
@@ -96,6 +108,7 @@ AFRAME.registerPrimitive('a-terrain-plain', {
         'unit-size': 'geometry.unitSize',
         'far': 'geometry.far',
         'log': 'geometry.log',
+        'shader': 'material.shader',
         'color': 'material.color',
         'metalness': 'material.metalness',
         'roughness': 'material.roughness',

@@ -8,6 +8,9 @@ Uses equilateral triangles for efficiency.
 
 [live example scene](https://dougreeder.github.io/aframe-terrain-plain/example.html)
 
+Written using Perlin noise &amp; ideas from [aframe-mountain-component](https://www.npmjs.com/package/aframe-mountain-component) 
+by Kevin Ngo.
+
 
 Parameters 
 ---
