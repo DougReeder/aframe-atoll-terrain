@@ -9,6 +9,8 @@ AFRAME.registerGeometry('terrain-plain', {
         middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
         far: {type: 'number', default: 4000},
+        color: {type: 'color'},
+        seaColor: {type: 'color'},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
@@ -24,6 +26,10 @@ AFRAME.registerGeometry('terrain-plain', {
         const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
         const PLATEAU_EDGE = INNER_RADIUS / 4;
         const SCAN_SIZE = Math.ceil(SIZE * 1.16);   // empirically determined
+
+        const COLOR = new THREE.Color(data.color);
+        const SEA_COLOR = new THREE.Color(data.seaColor);
+
         if (data.log) {
             console.log("terrain-plain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
@@ -51,8 +57,10 @@ AFRAME.registerGeometry('terrain-plain', {
 
                         y *= Math.min(INNER_RADIUS - r, PLATEAU_EDGE) / PLATEAU_EDGE;
 
-                        let quality = 5;
-                        y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * quality / 2;
+                        if (y > 0) {
+                            let quality = 5;
+                            y += perlin.noise((x + data.middleRadius) / quality, (z + data.middleRadius) / quality, SEED) * quality / 2;
+                        }
 
                         // flattens the bottom, so it's continuous with the plain
                         if (y < 0) {
@@ -69,15 +77,53 @@ AFRAME.registerGeometry('terrain-plain', {
                     vertexLookup[i][j] = vertexInd++;
                     geometry.vertices.push(new THREE.Vector3(x, y, z));
 
-                    let vertexA = vertexInd - 1;
-                    let vertexB = vertexLookup[i][j-1];
-                    let vertexC = vertexLookup[i-1][j-1];
-                    let vertexD = vertexLookup[i-1][j];
-                    if (typeof vertexB !== 'undefined' && typeof vertexC !== 'undefined') {
-                        geometry.faces.push(new THREE.Face3(vertexA, vertexB, vertexC));
+                    let vertexAInd = vertexInd - 1;
+                    let vertexAColor = y ? COLOR : SEA_COLOR;
+
+                    let vertexBInd = vertexLookup[i][j-1];
+                    let vertexB = geometry.vertices[vertexBInd];
+                    let vertexBColor;
+                    if (typeof vertexB !== 'undefined') {
+                        vertexBColor = vertexB.y ? COLOR : SEA_COLOR;
                     }
-                    if (typeof vertexC !== 'undefined' && typeof vertexD !== 'undefined') {
-                        geometry.faces.push(new THREE.Face3(vertexA, vertexC, vertexD));
+
+                    let vertexCInd = vertexLookup[i-1][j-1];
+                    let vertexC = geometry.vertices[vertexCInd];
+                    let vertexCColor;
+                    if (typeof vertexC !== 'undefined') {
+                        vertexCColor = vertexC.y ? COLOR : SEA_COLOR;
+                    }
+
+                    let vertexDInd = vertexLookup[i-1][j];
+                    let vertexD = geometry.vertices[vertexDInd];
+                    let vertexDColor;
+                    if (typeof vertexD !== 'undefined') {
+                        vertexDColor = vertexD.y ? COLOR : SEA_COLOR;
+                    }
+
+                    if (typeof vertexBInd !== 'undefined' && typeof vertexCInd !== 'undefined') {
+                        let face = new THREE.Face3(vertexAInd, vertexBInd, vertexCInd);
+                        // face.vertexColors[0] = vertexAColor;
+                        // face.vertexColors[1] = vertexBColor;
+                        // face.vertexColors[2] = vertexCColor;
+                        if (y || vertexB.y || vertexC.y) {
+                            face.color.set(COLOR);
+                        } else {
+                            face.color.set(SEA_COLOR);
+                        }
+                        geometry.faces.push(face);
+                    }
+                    if (typeof vertexCInd !== 'undefined' && typeof vertexDInd !== 'undefined') {
+                        let face = new THREE.Face3(vertexAInd, vertexCInd, vertexDInd);
+                        // face.vertexColors[0] = vertexAColor;
+                        // face.vertexColors[1] = vertexCColor;
+                        // face.vertexColors[2] = vertexDColor;
+                        if (y || vertexC.y || vertexD.y) {
+                            face.color.set(COLOR);
+                        } else {
+                            face.color.set(SEA_COLOR);
+                        }
+                        geometry.faces.push(face);
                     }
                 }
             }
@@ -100,6 +146,7 @@ AFRAME.registerPrimitive('a-terrain-plain', {
             log: false
         },
         material: {
+            vertexColors: 'vertex'
         }
     },
 
@@ -109,7 +156,8 @@ AFRAME.registerPrimitive('a-terrain-plain', {
         'far': 'geometry.far',
         'log': 'geometry.log',
         'shader': 'material.shader',
-        'color': 'material.color',
+        'color': 'geometry.color',
+        'sea-color': 'geometry.seaColor',
         'metalness': 'material.metalness',
         'roughness': 'material.roughness',
         'src': 'material.src',
