@@ -37,6 +37,7 @@ AFRAME.registerGeometry('terrain-plain', {
 
         let geometry = new THREE.Geometry();
 
+        // vertex locations
         let vertexLookup = {};
         vertexLookup[-SCAN_SIZE-1] = {};
         let vertexInd = 0;
@@ -76,58 +77,91 @@ AFRAME.registerGeometry('terrain-plain', {
 
                     vertexLookup[i][j] = vertexInd++;
                     geometry.vertices.push(new THREE.Vector3(x, y, z));
+                }
+            }
+        }
+        vertexLookup[SCAN_SIZE+1] = {};
 
-                    let vertexAInd = vertexInd - 1;
-                    let vertexAColor = y ? COLOR : SEA_COLOR;
+        // vertex colors
+        let pitColor = new THREE.Color(0x404040);   // dark gray
+        pitColor.lerp(COLOR, 0.75);
 
-                    let vertexBInd = vertexLookup[i][j-1];
-                    let vertexB = geometry.vertices[vertexBInd];
-                    let vertexBColor;
-                    if (typeof vertexB !== 'undefined') {
-                        vertexBColor = vertexB.y ? COLOR : SEA_COLOR;
+        let vertexColor = {};
+        for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
+            vertexColor[i] = {};
+            for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
+                let vertex = geometry.vertices[vertexLookup[i][j]];
+                if (vertex) {
+                    if (vertex.y > 0) {
+                        vertexColor[i][j] = COLOR;
+                    } else {
+                        let r = Math.sqrt(vertex.x*vertex.x + vertex.z*vertex.z);
+                        if (r > INNER_RADIUS) {
+                            vertexColor[i][j] = SEA_COLOR;
+                        } else {
+                            let neighbors = [];
+                            neighbors[0] = geometry.vertices[vertexLookup[i][j - 1]];
+                            neighbors[1] = geometry.vertices[vertexLookup[i - 1][j - 1]];
+                            neighbors[2] = geometry.vertices[vertexLookup[i - 1][j]];
+                            neighbors[3] = geometry.vertices[vertexLookup[i][j + 1]];
+                            neighbors[4] = geometry.vertices[vertexLookup[i + 1][j + 1]];
+                            neighbors[5] = geometry.vertices[vertexLookup[i + 1][j]];
+                            let land = 0, sea = 0;
+                            for (let n = 0; n < 6; ++n) {
+                                if (neighbors[n]) {
+                                    if (neighbors[n].y > 0) {
+                                        ++land;
+                                    } else {
+                                        ++sea;
+                                    }
+                                }
+                            }
+                            if (land === 0) {   // open sea
+                                vertexColor[i][j] = SEA_COLOR;
+                            } else if (sea === 0) {   // pit completely surrounded by land
+                                vertexColor[i][j] = pitColor;
+                            } else {
+                                let color = new THREE.Color(0x71615b);   // brownish-gray beach
+                                color.lerp(COLOR, land / (land+sea));
+                                vertexColor[i][j] = color;
+                            }
+                        }
                     }
+                }
+            }
+        }
+
+        // faces
+        for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
+            for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
+                let vertexAInd = vertexLookup[i][j];
+                if (geometry.vertices[vertexAInd]) {
+                    let vertexBInd = vertexLookup[i][j-1];
 
                     let vertexCInd = vertexLookup[i-1][j-1];
-                    let vertexC = geometry.vertices[vertexCInd];
-                    let vertexCColor;
-                    if (typeof vertexC !== 'undefined') {
-                        vertexCColor = vertexC.y ? COLOR : SEA_COLOR;
-                    }
 
                     let vertexDInd = vertexLookup[i-1][j];
-                    let vertexD = geometry.vertices[vertexDInd];
-                    let vertexDColor;
-                    if (typeof vertexD !== 'undefined') {
-                        vertexDColor = vertexD.y ? COLOR : SEA_COLOR;
-                    }
 
                     if (typeof vertexBInd !== 'undefined' && typeof vertexCInd !== 'undefined') {
                         let face = new THREE.Face3(vertexAInd, vertexBInd, vertexCInd);
-                        // face.vertexColors[0] = vertexAColor;
-                        // face.vertexColors[1] = vertexBColor;
-                        // face.vertexColors[2] = vertexCColor;
-                        if (y || vertexB.y || vertexC.y) {
-                            face.color.set(COLOR);
-                        } else {
-                            face.color.set(SEA_COLOR);
-                        }
+                        face.vertexColors[0] = vertexColor[i  ][j  ];
+                        face.vertexColors[1] = vertexColor[i  ][j-1];
+                        face.vertexColors[2] = vertexColor[i-1][j-1];
+
                         geometry.faces.push(face);
                     }
                     if (typeof vertexCInd !== 'undefined' && typeof vertexDInd !== 'undefined') {
                         let face = new THREE.Face3(vertexAInd, vertexCInd, vertexDInd);
-                        // face.vertexColors[0] = vertexAColor;
-                        // face.vertexColors[1] = vertexCColor;
-                        // face.vertexColors[2] = vertexDColor;
-                        if (y || vertexC.y || vertexD.y) {
-                            face.color.set(COLOR);
-                        } else {
-                            face.color.set(SEA_COLOR);
-                        }
+                        face.vertexColors[0] = vertexColor[i  ][j  ];
+                        face.vertexColors[1] = vertexColor[i-1][j-1];
+                        face.vertexColors[2] = vertexColor[i-1][j  ];
+
                         geometry.faces.push(face);
                     }
                 }
             }
         }
+
         geometry.computeBoundingBox();
         geometry.mergeVertices();
         geometry.computeFaceNormals();
