@@ -40,7 +40,26 @@ Thus, it's also the distance to the effective horizon.
 Should be about 80% of the radius of your sky sphere.
 
 
+### land-yin-color, land-yang-color
+defaults: #528d04, #278d53
+
+The color of the land smoothly varies between these two extremes.
+Typically, you'll want them to vary mostly by hue and saturation, rather than intensity.
+
+
+### metalness
+default: 0
+
+The [metalness](https://aframe.io/docs/0.9.0/components/material.html#built_in_materials_metalness) of land and sea.
+
+
+### roughness
+default: 0.5
+
+The [roughness](https://aframe.io/docs/0.9.0/components/material.html#built_in_materials_roughness) of land and sea.
+
+
 ### log
 default: false
 
-Whether to write debugging data to the console. 
+Whether to write diagnostic data to the console. 

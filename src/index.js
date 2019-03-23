@@ -9,7 +9,8 @@ AFRAME.registerGeometry('terrain-plain', {
         middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
         far: {type: 'number', default: 4000},
-        color: {type: 'color'},
+        landYinColor: {type: 'color', default: '#528d04'},
+        landYangColor: {type: 'color', default: '#278d53'},
         seaColor: {type: 'color'},
         log: {type: 'boolean', default: false}
     },
@@ -27,7 +28,8 @@ AFRAME.registerGeometry('terrain-plain', {
         const PLATEAU_EDGE = INNER_RADIUS / 4;
         const SCAN_SIZE = Math.ceil(SIZE * 1.16);   // empirically determined
 
-        const COLOR = new THREE.Color(data.color);
+        const LAND_YIN_COLOR = new THREE.Color(data.landYinColor);
+        const LAND_YANG_COLOR = new THREE.Color(data.landYangColor);
         const SEA_COLOR = new THREE.Color(data.seaColor);
 
         if (data.log) {
@@ -84,7 +86,8 @@ AFRAME.registerGeometry('terrain-plain', {
 
         // vertex colors
         let pitColor = new THREE.Color(0x404040);   // dark gray
-        pitColor.lerp(COLOR, 0.75);
+        pitColor.lerp(LAND_YIN_COLOR, 0.75);
+        const QUALITY1 = UNIT_SIZE * 5, QUALITY2 = UNIT_SIZE * 25;
 
         let vertexColor = {};
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
@@ -93,7 +96,10 @@ AFRAME.registerGeometry('terrain-plain', {
                 let vertex = geometry.vertices[vertexLookup[i][j]];
                 if (vertex) {
                     if (vertex.y > 0) {
-                        vertexColor[i][j] = COLOR;
+                        let mix = (1.73205 + perlin.noise((vertex.x+data.middleRadius) / QUALITY1, (vertex.z+data.middleRadius) / QUALITY1, SEED)
+                            + perlin.noise((vertex.x+data.middleRadius) / QUALITY2, (vertex.z+data.middleRadius) / QUALITY2, SEED)) / 3.4641;
+                        let color = LAND_YIN_COLOR.clone();
+                        vertexColor[i][j] = color.lerp(LAND_YANG_COLOR, mix);
                     } else {
                         let r = Math.sqrt(vertex.x*vertex.x + vertex.z*vertex.z);
                         if (r > INNER_RADIUS) {
@@ -122,7 +128,7 @@ AFRAME.registerGeometry('terrain-plain', {
                                 vertexColor[i][j] = pitColor;
                             } else {
                                 let color = new THREE.Color(0x71615b);   // brownish-gray beach
-                                color.lerp(COLOR, land / (land+sea));
+                                color.lerp(LAND_YIN_COLOR, land / (land+sea));
                                 vertexColor[i][j] = color;
                             }
                         }
@@ -190,7 +196,8 @@ AFRAME.registerPrimitive('a-terrain-plain', {
         'far': 'geometry.far',
         'log': 'geometry.log',
         'shader': 'material.shader',
-        'color': 'geometry.color',
+        'land-yin-color': 'geometry.landYinColor',
+        'land-yang-color': 'geometry.landYangColor',
         'sea-color': 'geometry.seaColor',
         'metalness': 'material.metalness',
         'roughness': 'material.roughness',
