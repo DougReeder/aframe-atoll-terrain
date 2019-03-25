@@ -11,7 +11,8 @@ AFRAME.registerGeometry('terrain-plain', {
         far: {type: 'number', default: 4000},
         landYinColor: {type: 'color', default: '#528d04'},
         landYangColor: {type: 'color', default: '#278d53'},
-        seaColor: {type: 'color'},
+        seaYinColor: {type: 'color'},
+        seaYangColor: {type: 'color'},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
@@ -30,7 +31,10 @@ AFRAME.registerGeometry('terrain-plain', {
 
         const LAND_YIN_COLOR = new THREE.Color(data.landYinColor);
         const LAND_YANG_COLOR = new THREE.Color(data.landYangColor);
-        const SEA_COLOR = new THREE.Color(data.seaColor);
+        const SEA_YIN_COLOR = new THREE.Color(data.seaYinColor);
+        const SEA_YANG_COLOR = new THREE.Color(data.seaYangColor);
+        let seaAverageColor = SEA_YIN_COLOR.clone();
+        seaAverageColor.lerp(SEA_YANG_COLOR, 0.5);
 
         if (data.log) {
             console.log("terrain-plain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
@@ -87,7 +91,8 @@ AFRAME.registerGeometry('terrain-plain', {
         // vertex colors
         let pitColor = new THREE.Color(0x404040);   // dark gray
         pitColor.lerp(LAND_YIN_COLOR, 0.75);
-        const QUALITY1 = UNIT_SIZE * 5, QUALITY2 = UNIT_SIZE * 25;
+        const SCALE5 = UNIT_SIZE * 5, SCALE25 = UNIT_SIZE * 25;
+        const SCALE3 = UNIT_SIZE * 3, SCALE12 = UNIT_SIZE * 12;
 
         let vertexColor = {};
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
@@ -95,15 +100,15 @@ AFRAME.registerGeometry('terrain-plain', {
             for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
                 let vertex = geometry.vertices[vertexLookup[i][j]];
                 if (vertex) {
-                    if (vertex.y > 0) {
-                        let mix = (1.73205 + perlin.noise((vertex.x+data.middleRadius) / QUALITY1, (vertex.z+data.middleRadius) / QUALITY1, SEED)
-                            + perlin.noise((vertex.x+data.middleRadius) / QUALITY2, (vertex.z+data.middleRadius) / QUALITY2, SEED)) / 3.4641;
+                    if (vertex.y > 0) {   // above sea level
+                        let mix = (1.73205 + perlin.noise((vertex.x+data.middleRadius) / SCALE5, (vertex.z+data.middleRadius) / SCALE5, SEED)
+                            + perlin.noise((vertex.x+data.middleRadius) / SCALE25, (vertex.z+data.middleRadius) / SCALE25, SEED)) / 3.4641;
                         let color = LAND_YIN_COLOR.clone();
                         vertexColor[i][j] = color.lerp(LAND_YANG_COLOR, mix);
-                    } else {
+                    } else {   // sea level
                         let r = Math.sqrt(vertex.x*vertex.x + vertex.z*vertex.z);
                         if (r > INNER_RADIUS) {
-                            vertexColor[i][j] = SEA_COLOR;
+                            vertexColor[i][j] = seaAverageColor;
                         } else {
                             let neighbors = [];
                             neighbors[0] = geometry.vertices[vertexLookup[i][j - 1]];
@@ -122,8 +127,11 @@ AFRAME.registerGeometry('terrain-plain', {
                                     }
                                 }
                             }
-                            if (land === 0) {   // open sea
-                                vertexColor[i][j] = SEA_COLOR;
+                            if (land === 0) {   // away from shore
+                                let mix = (1.73205 + perlin.noise((vertex.x+FAR) / SCALE3, (vertex.z+FAR) / SCALE3, SEED)
+                                    + perlin.noise((vertex.x+FAR) / SCALE12, (vertex.z+FAR) / SCALE12, SEED)) / 3.4641;
+                                let color = SEA_YIN_COLOR.clone();
+                                vertexColor[i][j] = color.lerp(SEA_YANG_COLOR, mix);
                             } else if (sea === 0) {   // pit completely surrounded by land
                                 vertexColor[i][j] = pitColor;
                             } else {
@@ -198,7 +206,8 @@ AFRAME.registerPrimitive('a-terrain-plain', {
         'shader': 'material.shader',
         'land-yin-color': 'geometry.landYinColor',
         'land-yang-color': 'geometry.landYangColor',
-        'sea-color': 'geometry.seaColor',
+        'sea-yin-color': 'geometry.seaYinColor',
+        'sea-yang-color': 'geometry.seaYangColor',
         'metalness': 'material.metalness',
         'roughness': 'material.roughness',
         'src': 'material.src',

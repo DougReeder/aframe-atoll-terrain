@@ -2,7 +2,7 @@ aframe-terrain-plain
 ====================
 
 An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) primitive that has a circle of high-resolution terrain near the origin, 
-surrounded by a low-resolution plain that stretches to the horizon.
+surrounded by a low-resolution sea or plain that stretches to the horizon.
 Uses equilateral triangles for efficiency.
 
 
@@ -45,6 +45,12 @@ defaults: #528d04, #278d53
 
 The color of the land smoothly varies between these two extremes.
 Typically, you'll want them to vary mostly by hue and saturation, rather than intensity.
+
+
+### sea-yin-color, sea-yang-color
+defaults:
+
+The color of the sea smoothly varies between these two extremes.
 
 
 ### metalness
