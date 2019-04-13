@@ -1,6 +1,6 @@
 {
   "name": "aframe-terrain-plain",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An A-Frame WebVR primitive that has a circle of high-resolution terrain near the origin, surrounded by a low-resolution plain that stretches to the horizon",
   "scripts": {
     "build": "webpack",
