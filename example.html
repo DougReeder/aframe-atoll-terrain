@@ -13,6 +13,7 @@ AFRAME.registerComponent('moving-sun', {
     init: function () {
         this.positionSph = new THREE.Spherical(1, Math.PI/2, 0);
         this.position = new THREE.Vector3();
+        this.atollTerrain = document.querySelector('a-atoll-terrain');
         this.sss = document.querySelector('a-simple-sun-sky');
         this.directional = document.getElementById('directional');
     },
@@ -23,6 +24,7 @@ AFRAME.registerComponent('moving-sun', {
         this.position.setFromSpherical(this.positionSph);
         let positionStr = this.position.x + ' ' + this.position.y + ' ' + this.position.z;
 //        console.log(positionStr);
+        this.atollTerrain.setAttribute('sun-position', positionStr);
         this.sss.setAttribute('sun-position', positionStr);
         this.directional.setAttribute('position', positionStr);
     }
@@ -31,14 +33,14 @@ AFRAME.registerComponent('moving-sun', {
 </head>
 <body>
 <a-scene moving-sun>
-    <a-simple-sun-sky sun-position="0.7 0.4 -1"></a-simple-sun-sky>
+    <a-simple-sun-sky sun-position="0.8 0.6 0"></a-simple-sun-sky>
     <a-entity light="type: ambient; color: #888"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
     <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
     <a-atoll-terrain middle-radius="400" unit-size="4" far="4000"
                      land-yin-color="#528d04" land-yang-color="#278d53" sea-yin-color="#005e85" sea-yang-color="#2571cf"
-                     metalness="0" roughness="0.85"
+                     sun-position="0.8 0.6 0"
                      log="true" flat-shading="false">
     </a-atoll-terrain>
 </a-scene>

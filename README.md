@@ -53,16 +53,11 @@ defaults:
 The color of the sea smoothly varies between these two extremes.
 
 
-### metalness
-default: 0
+### sun-position
 
-The [metalness](https://aframe.io/docs/0.9.0/components/material.html#built_in_materials_metalness) of land and sea.
-
-
-### roughness
-default: 0.5
-
-The [roughness](https://aframe.io/docs/0.9.0/components/material.html#built_in_materials_roughness) of land and sea.
+The direction from which the sun is shining.
+This primitive ignores directional lights, but others may use them.
+If you're using one of the *-sun-sky primitives, set its sun-position to the same value.
 
 
 ### log
