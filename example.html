@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>aframe-terrain-plain primitive</title>
-    <meta name="description" content="An example scene with an aframe-terrain-plain and some polyhedrons">
+    <title>aframe-atoll-terrain primitive example</title>
+    <meta name="description" content="An example A-Frame WebVR scene with an aframe-atoll-terrain (and an aframe-simple-sun-sky)">
     <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.2/simple-sun-sky.js"></script>
-    <script src="dist/main.js"></script>
-    <!--<script src="https://unpkg.com/aframe-terrain-plain@^0.9.0/dist/main.js"></script>-->
+    <script src="dist/aframe-atoll-terrain.js"></script>
+    <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.9.0/dist/aframe-atoll-terrain.js"></script>-->
     <script>
 AFRAME.registerComponent('moving-sun', {
     init: function () {
@@ -36,11 +36,11 @@ AFRAME.registerComponent('moving-sun', {
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
     <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <a-terrain-plain middle-radius="400" unit-size="4" far="4000"
+    <a-atoll-terrain middle-radius="400" unit-size="4" far="4000"
                      land-yin-color="#528d04" land-yang-color="#278d53" sea-yin-color="#005e85" sea-yang-color="#2571cf"
                      metalness="0" roughness="0.85"
                      log="true" flat-shading="false">
-    </a-terrain-plain>
+    </a-atoll-terrain>
 </a-scene>
 </body>
 </html>

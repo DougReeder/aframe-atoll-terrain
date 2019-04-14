@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/aframe-terrain-plain.iml" filepath="$PROJECT_DIR$/aframe-terrain-plain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aframe-atoll-terrain.iml" filepath="$PROJECT_DIR$/aframe-atoll-terrain.iml" />
     </modules>
   </component>
 </project>

@@ -1,4 +1,4 @@
-aframe-terrain-plain
+aframe-atoll-terrain
 ====================
 
 An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) primitive that has a circle of high-resolution terrain near the origin, 
@@ -6,7 +6,7 @@ surrounded by a low-resolution sea or plain that stretches to the horizon.
 Uses equilateral triangles for efficiency.
 
 
-[live example scene](https://dougreeder.github.io/aframe-terrain-plain/example.html)
+[live example scene](https://dougreeder.github.io/aframe-atoll-terrain/example.html)
 
 Written using Perlin noise &amp; ideas from [aframe-mountain-component](https://www.npmjs.com/package/aframe-mountain-component) 
 by Kevin Ngo.

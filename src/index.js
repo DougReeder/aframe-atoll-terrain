@@ -1,15 +1,15 @@
-// aframe-terrain-plain - An A-Frame WebVR primitive with high-resolution terrain surrounded by a low-res plain
+// aframe-atoll-terrain - An A-Frame WebVR primitive with high-resolution terrain surrounded by a low-res plain
 // Copyright © 2019 P. Douglas Reeder under the MIT License
-// Written using Perlin noise & ideas from aframe-mountain-component by Kevin Ngo.
+// Written using Perlin noise
 
-import GeometryTerrainPlain from './geometry-terrain-plain';
+import GeometryAtollTerrain from './geometry-atoll-terrain';
 
 
 
-AFRAME.registerPrimitive('a-terrain-plain', {
+AFRAME.registerPrimitive('a-atoll-terrain', {
     defaultComponents: {
         geometry: {
-            primitive: 'terrain-plain',
+            primitive: 'atoll-terrain',
             middleRadius: 100,
             unitSize: 1,
             log: false

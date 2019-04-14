@@ -1,9 +1,9 @@
-// geometry-terrain-plain.js - geometry for aframe-terrain-plain component
+// geometry-atoll-terrain.js - geometry for aframe-atoll-terrain component
 // Copyright © 2019 P. Douglas Reeder under the MIT License
 
 import ImprovedNoise from './ImprovedNoise';
 
-AFRAME.registerGeometry('terrain-plain', {
+AFRAME.registerGeometry('atoll-terrain', {
     schema: {
         middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
@@ -36,7 +36,7 @@ AFRAME.registerGeometry('terrain-plain', {
         seaAverageColor.lerp(SEA_YANG_COLOR, 0.5);
 
         if (data.log) {
-            console.log("terrain-plain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
+            console.log("atoll-terrain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }
 
