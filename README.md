@@ -3,13 +3,10 @@ aframe-atoll-terrain
 
 An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) primitive that has a circle of high-resolution terrain near the origin, 
 surrounded by a low-resolution sea or plain that stretches to the horizon.
-Uses equilateral triangles for efficiency.
+Uses a grid of equilateral triangles for efficiency.
 
 
 [live example scene](https://dougreeder.github.io/aframe-atoll-terrain/example.html)
-
-Written using Perlin noise &amp; ideas from [aframe-mountain-component](https://www.npmjs.com/package/aframe-mountain-component) 
-by Kevin Ngo.
 
 
 Parameters 
@@ -45,6 +42,7 @@ defaults: #528d04, #278d53
 
 The color of the land smoothly varies between these two extremes.
 Typically, you'll want them to vary mostly by hue and saturation, rather than intensity.
+Noise will cause brief excursions outside this range.
 
 
 ### sea-yin-color, sea-yang-color

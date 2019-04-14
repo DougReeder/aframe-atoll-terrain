@@ -1,3 +1,5 @@
+// vertex-color+noise-vert.glsl - vertex shader
+// Copyright © 2019 P. Douglas Reeder under the MIT License
 
 uniform vec3 sunNormal;
 
