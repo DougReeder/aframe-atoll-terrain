@@ -80,18 +80,7 @@ float snoise(vec2 v)
 // end Ashima Arts copyright
 
 
-// by "sam" of "lolengine"
-vec3 rgb2hsv(vec3 c)
-{
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    vec4 p = c.g < c.b ? vec4(c.bg, K.wz) : vec4(c.gb, K.xy);
-    vec4 q = c.r < p.x ? vec4(p.xyw, c.r) : vec4(c.r, p.yzx);
-
-    float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
-}
-
+// by "sam" of "lolengine", apparently Public Domain
 vec3 hsv2rgb(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -102,14 +91,14 @@ vec3 hsv2rgb(vec3 c)
 
 
 void main() {
-    vec3 hsv = rgb2hsv(interpColor);
-
     float noise = snoise(interpPosition.xz) /* + snoise(interpPosition.xz*10.0) */;
-    const vec2 landDivisor = vec2(30.0, 10.0);
-    const vec2 seaDivisor = vec2(200.0, 30.0);
-    hsv.xy += noise / (interpPosition.y > 1.0 ? landDivisor : seaDivisor);
 
-    vec3 inherentColor = hsv2rgb(hsv);
+    const vec3 factor = vec3(1.0/65.0, 1.0/19.0, 1.0/6.55e4);
+    const vec3 offsetHSV = vec3(0.5, 0.5, 0.5);
+    vec3 noiseHSV = noise * factor + offsetHSV;
+
+    const vec3 offsetRGB = vec3(0.25, 0.5, 0.5);
+    vec3 inherentColor = interpColor + hsv2rgb(noiseHSV) - offsetRGB;
 
     gl_FragColor = vec4(inherentColor * sunFactor, 1.0);
 }

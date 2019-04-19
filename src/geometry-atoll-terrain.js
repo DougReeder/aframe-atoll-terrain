@@ -34,6 +34,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         const SEA_YANG_COLOR = new THREE.Color(data.seaYangColor);
         let seaAverageColor = SEA_YIN_COLOR.clone();
         seaAverageColor.lerp(SEA_YANG_COLOR, 0.5);
+        const BEACH_COLOR = new THREE.Color(0x71615b);   // brownish-gray beach
 
         if (data.log) {
             console.log("atoll-terrain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
@@ -134,7 +135,7 @@ AFRAME.registerGeometry('atoll-terrain', {
                             } else if (sea === 0) {   // pit completely surrounded by land
                                 vertexColor[i][j] = pitColor;
                             } else {
-                                let color = new THREE.Color(0x71615b);   // brownish-gray beach
+                                let color = BEACH_COLOR.clone();
                                 color.lerp(LAND_YIN_COLOR, land / (land+sea));
                                 vertexColor[i][j] = color;
                             }
