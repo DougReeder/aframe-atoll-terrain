@@ -1,7 +1,8 @@
 aframe-atoll-terrain
 ====================
 
-An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) primitive that has a circle of high-resolution terrain near the origin, 
+An [A-Frame](https://aframe.io) [WebVR](https://webvr.info/) primitive that has a circle of high-resolution terrain near the origin,
+which include a central plateau, 
 surrounded by a low-resolution sea or plain that stretches to the horizon.
 Uses a grid of equilateral triangles for efficiency.
 
@@ -12,6 +13,21 @@ Uses a grid of equilateral triangles for efficiency.
 Parameters 
 ---
 Typically, you'll leave the entity position and rotation as zero, but you don't have to.
+
+
+### plateau-radius
+default: 10
+minimum: 0
+maximum: middle-radius
+
+Radius of the central plateau.
+If radius is 0, there is no plateau.
+
+
+### plateau-elevation
+default: 1
+
+Set to 0 to make the "plateau" part of the sea.
 
 
 ### middle-radius

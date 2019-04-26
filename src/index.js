@@ -21,6 +21,8 @@ AFRAME.registerPrimitive('a-atoll-terrain', {
     },
 
     mappings: {
+        'plateau-radius': 'geometry.plateauRadius',
+        'plateau-elevation': 'geometry.plateauElevation',
         'middle-radius': 'geometry.middleRadius',
         'unit-size': 'geometry.unitSize',
         'far': 'geometry.far',

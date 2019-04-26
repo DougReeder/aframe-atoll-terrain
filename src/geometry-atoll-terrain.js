@@ -5,6 +5,8 @@ import ImprovedNoise from './ImprovedNoise';
 
 AFRAME.registerGeometry('atoll-terrain', {
     schema: {
+        plateauRadius: {type: 'number', default: 10, min: 0},
+        plateauElevation: {type: 'number', default: 1},
         middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
         far: {type: 'number', default: 4000},
@@ -22,10 +24,12 @@ AFRAME.registerGeometry('atoll-terrain', {
         const SIZE = Math.round(data.middleRadius / data.unitSize);
         const UNIT_SIZE = data.middleRadius / SIZE;
 
+        const PLATEAU_EDGE = data.plateauRadius + UNIT_SIZE;
+
         const INNER_RADIUS = (SIZE-1) * UNIT_SIZE + 0.0001;
         const OUTER_RADIUS = (SIZE+1) * UNIT_SIZE + 0.0001;
         const FAR = data.far > OUTER_RADIUS ? data.far : OUTER_RADIUS;
-        const PLATEAU_EDGE = INNER_RADIUS / 4;
+        const MASK_EDGE = INNER_RADIUS / 4;
         const SCAN_SIZE = Math.ceil(SIZE * 1.16);   // empirically determined
 
         const LAND_YIN_COLOR = new THREE.Color(data.landYinColor);
@@ -37,7 +41,8 @@ AFRAME.registerGeometry('atoll-terrain', {
         const BEACH_COLOR = new THREE.Color(0x71615b);   // brownish-gray beach
 
         if (data.log) {
-            console.log("atoll-terrain", "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
+            console.log("atoll-terrain", "plateauRadius="+data.plateauRadius, "plateauElevation="+data.plateauElevation,
+                "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }
 
@@ -55,14 +60,19 @@ AFRAME.registerGeometry('atoll-terrain', {
                 let r = Math.sqrt(x*x + z*z);
                 if (r <= OUTER_RADIUS) {
                     let y;
-                    if (r <= INNER_RADIUS) {
+                    if (data.plateauRadius > 0 && r <= PLATEAU_EDGE) {
+                        y = data.plateauElevation;
+                    } else if (r <= INNER_RADIUS) {
                         y = 10;
                         // generates smooth noisy terrain
                         for (let quality = 25; quality <= 1500; quality *= 5) {
                             y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 150);
                         }
 
-                        y *= Math.min(INNER_RADIUS - r, PLATEAU_EDGE) / PLATEAU_EDGE;
+                        if (data.plateauRadius > 0) {
+                            y = data.plateauElevation + (y - data.plateauElevation) * Math.min(r - PLATEAU_EDGE, MASK_EDGE) / MASK_EDGE;
+                        }
+                        y *= Math.min(INNER_RADIUS - r, MASK_EDGE) / MASK_EDGE;
 
                         if (y > 0) {
                             let quality = 5;

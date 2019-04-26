@@ -37,12 +37,16 @@ AFRAME.registerComponent('moving-sun', {
     <a-entity light="type: ambient; color: #888"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
-    <a-sphere position="0 1.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <a-atoll-terrain middle-radius="400" unit-size="4" far="4000"
+    <a-sphere position="0 26.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
+    <a-atoll-terrain plateau-radius="5" plateau-elevation="25" middle-radius="400" unit-size="4" far="4000"
                      land-yin-color="#528d04" land-yang-color="#278d53" sea-yin-color="#005e85" sea-yang-color="#2571cf"
                      sun-position="0.8 0.6 0"
                      log="true" flat-shading="false">
     </a-atoll-terrain>
+
+    <a-entity id="armature" position="0 26.6 0">
+        <a-entity camera look-controls wasd-controls>
+    </a-entity>
 </a-scene>
 </body>
 </html>
