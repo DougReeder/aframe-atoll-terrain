@@ -5,6 +5,7 @@ import ImprovedNoise from './ImprovedNoise';
 
 AFRAME.registerGeometry('atoll-terrain', {
     schema: {
+        buffer: {type: 'boolean', default: false},
         plateauRadius: {type: 'number', default: 10, min: 0},
         plateauElevation: {type: 'number', default: 1},
         middleRadius: {type: 'number', default: 100, min: 10},
@@ -46,7 +47,8 @@ AFRAME.registerGeometry('atoll-terrain', {
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }
 
-        let geometry = new THREE.Geometry();
+        let vertices = [];    // one element (THREE.Vector3) per vertex; temporary storage during generation
+        let positions = [];   // three elements (x,y,z) per vertex
 
         // vertex locations
         let vertexLookup = {};
@@ -92,41 +94,50 @@ AFRAME.registerGeometry('atoll-terrain', {
                     }
 
                     vertexLookup[i][j] = vertexInd++;
-                    geometry.vertices.push(new THREE.Vector3(x, y, z));
+                    vertices.push(new THREE.Vector3(x, y, z));
+                    positions.push(x, y, z);
                 }
             }
         }
         vertexLookup[SCAN_SIZE+1] = {};
 
-        // vertex colors
+        // vertex colors & behaviors
         let pitColor = new THREE.Color(0x404040);   // dark gray
         pitColor.lerp(LAND_YIN_COLOR, 0.75);
         const SCALE5 = UNIT_SIZE * 5, SCALE25 = UNIT_SIZE * 25;
         const SCALE3 = UNIT_SIZE * 3, SCALE12 = UNIT_SIZE * 12;
 
-        let vertexColor = {};
+        let colors = [];   // three elements (r,g,b) per vertex
+
+        const BEHAVIOR_STATIONARY = 0;
+        const BEHAVIOR_WAVES = 10;
+        let vertexBehavior = new Array(vertices.length);   // one element (behavior enum) per vertex
+
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
-            vertexColor[i] = {};
             for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
-                let vertex = geometry.vertices[vertexLookup[i][j]];
+                let vertexInd = vertexLookup[i][j];
+                let vertex = vertices[vertexInd];
                 if (vertex) {
                     if (vertex.y > 0) {   // above sea level
                         let mix = (1.73205 + perlin.noise((vertex.x+data.middleRadius) / SCALE5, (vertex.z+data.middleRadius) / SCALE5, SEED)
                             + perlin.noise((vertex.x+data.middleRadius) / SCALE25, (vertex.z+data.middleRadius) / SCALE25, SEED)) / 3.4641;
                         let color = LAND_YIN_COLOR.clone();
-                        vertexColor[i][j] = color.lerp(LAND_YANG_COLOR, mix);
+                        color.lerp(LAND_YANG_COLOR, mix);
+                        colors.push(color.r, color.g, color.b);
+                        vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
                     } else {   // sea level
                         let r = Math.sqrt(vertex.x*vertex.x + vertex.z*vertex.z);
                         if (r > INNER_RADIUS) {
-                            vertexColor[i][j] = seaAverageColor;
+                            colors.push(seaAverageColor.r, seaAverageColor.g, seaAverageColor.b);
+                            vertexBehavior[vertexInd] = BEHAVIOR_WAVES;
                         } else {
                             let neighbors = [];
-                            neighbors[0] = geometry.vertices[vertexLookup[i][j - 1]];
-                            neighbors[1] = geometry.vertices[vertexLookup[i - 1][j - 1]];
-                            neighbors[2] = geometry.vertices[vertexLookup[i - 1][j]];
-                            neighbors[3] = geometry.vertices[vertexLookup[i][j + 1]];
-                            neighbors[4] = geometry.vertices[vertexLookup[i + 1][j + 1]];
-                            neighbors[5] = geometry.vertices[vertexLookup[i + 1][j]];
+                            neighbors[0] = vertices[vertexLookup[i][j - 1]];
+                            neighbors[1] = vertices[vertexLookup[i - 1][j - 1]];
+                            neighbors[2] = vertices[vertexLookup[i - 1][j]];
+                            neighbors[3] = vertices[vertexLookup[i][j + 1]];
+                            neighbors[4] = vertices[vertexLookup[i + 1][j + 1]];
+                            neighbors[5] = vertices[vertexLookup[i + 1][j]];
                             let land = 0, sea = 0;
                             for (let n = 0; n < 6; ++n) {
                                 if (neighbors[n]) {
@@ -141,13 +152,17 @@ AFRAME.registerGeometry('atoll-terrain', {
                                 let mix = (1.73205 + perlin.noise((vertex.x+FAR) / SCALE3, (vertex.z+FAR) / SCALE3, SEED)
                                     + perlin.noise((vertex.x+FAR) / SCALE12, (vertex.z+FAR) / SCALE12, SEED)) / 3.4641;
                                 let color = SEA_YIN_COLOR.clone();
-                                vertexColor[i][j] = color.lerp(SEA_YANG_COLOR, mix);
+                                color.lerp(SEA_YANG_COLOR, mix);
+                                colors.push(color.r, color.g, color.b);
+                                vertexBehavior[vertexInd] = BEHAVIOR_WAVES;
                             } else if (sea === 0) {   // pit completely surrounded by land
-                                vertexColor[i][j] = pitColor;
+                                colors.push(pitColor.r, pitColor.g, pitColor.b);
+                                vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
                             } else {
                                 let color = BEACH_COLOR.clone();
                                 color.lerp(LAND_YIN_COLOR, land / (land+sea));
-                                vertexColor[i][j] = color;
+                                colors.push(color.r, color.g, color.b);
+                                vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
                             }
                         }
                     }
@@ -156,10 +171,11 @@ AFRAME.registerGeometry('atoll-terrain', {
         }
 
         // faces
+        let faceIndices = [];   // three elements (vertex indexes) per face
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
             for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
                 let vertexAInd = vertexLookup[i][j];
-                if (geometry.vertices[vertexAInd]) {
+                if (vertices[vertexAInd]) {
                     let vertexBInd = vertexLookup[i][j-1];
 
                     let vertexCInd = vertexLookup[i-1][j-1];
@@ -167,29 +183,27 @@ AFRAME.registerGeometry('atoll-terrain', {
                     let vertexDInd = vertexLookup[i-1][j];
 
                     if (typeof vertexBInd !== 'undefined' && typeof vertexCInd !== 'undefined') {
-                        let face = new THREE.Face3(vertexAInd, vertexBInd, vertexCInd);
-                        face.vertexColors[0] = vertexColor[i  ][j  ];
-                        face.vertexColors[1] = vertexColor[i  ][j-1];
-                        face.vertexColors[2] = vertexColor[i-1][j-1];
-
-                        geometry.faces.push(face);
+                        faceIndices.push(vertexAInd, vertexBInd, vertexCInd);
                     }
                     if (typeof vertexCInd !== 'undefined' && typeof vertexDInd !== 'undefined') {
-                        let face = new THREE.Face3(vertexAInd, vertexCInd, vertexDInd);
-                        face.vertexColors[0] = vertexColor[i  ][j  ];
-                        face.vertexColors[1] = vertexColor[i-1][j-1];
-                        face.vertexColors[2] = vertexColor[i-1][j  ];
-
-                        geometry.faces.push(face);
+                        faceIndices.push(vertexAInd, vertexCInd, vertexDInd);
                     }
                 }
             }
         }
 
-        geometry.computeBoundingBox();
-        geometry.mergeVertices();
-        geometry.computeFaceNormals();
-        geometry.computeVertexNormals();
-        this.geometry = geometry;
+
+
+        // console.log("positions.length="+positions.length,
+        //     "colors.length="+colors.length, "behavior.length="+behavior.length);
+
+        let bufferGeometry = new THREE.BufferGeometry();
+        bufferGeometry.setIndex(faceIndices);
+        bufferGeometry.addAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ) );
+        bufferGeometry.computeVertexNormals();
+        // geometry.computeBoundingBox();
+        bufferGeometry.addAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ) );
+        bufferGeometry.addAttribute('behavior', new THREE.Float32BufferAttribute(vertexBehavior,  1));
+        this.geometry = bufferGeometry;
     }
 });

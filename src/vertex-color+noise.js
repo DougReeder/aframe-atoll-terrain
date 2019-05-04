@@ -6,7 +6,8 @@ import fragmentShader from './vertex-color+noise-frag.glsl'
 
 AFRAME.registerShader('vertex-color+noise', {
     schema: {
-        sunPosition: {type: 'vec3', default: {x:-1.0, y:1.0, z:-1.0}}
+        sunPosition: {type: 'vec3', default: {x:-1.0, y:1.0, z:-1.0}},
+        timeMsec: {type: 'time', is: 'uniform'}
     },
 
     /**
@@ -17,7 +18,8 @@ AFRAME.registerShader('vertex-color+noise', {
         let sunPos = new THREE.Vector3(data.sunPosition.x, data.sunPosition.y, data.sunPosition.z);
         this.material = new THREE.ShaderMaterial({
             uniforms: {
-                sunNormal: {value: sunPos.normalize()}
+                sunNormal: {value: sunPos.normalize()},
+                wavesOffset: {type: 'vec3', value: {x:0, y:0, z:0}},
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader
@@ -28,7 +30,13 @@ AFRAME.registerShader('vertex-color+noise', {
      * `update` used to update the material. Called on initialization and when data updates.
      */
     update: function (data) {
-        let sunPos = new THREE.Vector3(data.sunPosition.x, data.sunPosition.y, data.sunPosition.z);
-        this.material.uniforms.sunNormal.value = sunPos.normalize();
+        if (data.sunPosition) {
+            let sunPos = new THREE.Vector3(data.sunPosition.x, data.sunPosition.y, data.sunPosition.z);
+            this.material.uniforms.sunNormal.value = sunPos.normalize();
+        }
+        if (data.timeMsec) {
+            let time = data.timeMsec / 1000;
+            this.material.uniforms.wavesOffset.value = new THREE.Vector3(Math.sin(time), 0.0, Math.cos(time*1.33333));
+        }
     },
 });

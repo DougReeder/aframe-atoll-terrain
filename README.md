@@ -6,6 +6,7 @@ surrounded by a low-resolution sea or plain that stretches to the horizon.
 Optionally, the high-resolution area can include a central plateau or sea.
 
 Uses a grid of equilateral triangles for efficiency.
+Usable on mobile, with moderate detail.
 
 Pairs well with [aframe-simple-sun-sky](https://www.npmjs.com/package/aframe-simple-sun-sky)
 or [aframe-sun-sky](https://www.npmjs.com/package/aframe-sun-sky)
@@ -14,7 +15,7 @@ or [aframe-sun-sky](https://www.npmjs.com/package/aframe-sun-sky)
 
 [live example scene](https://dougreeder.github.io/aframe-atoll-terrain/example.html)
 On desktop, drag to turn and use WASD keys to move.
-Reload several time to see some variations.
+Reload several time to see some variations, especially if you don't see water.
 
 
 Usage

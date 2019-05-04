@@ -2,7 +2,7 @@
 // Copyright © 2019 P. Douglas Reeder under the MIT License, except as noted
 
 varying vec3 interpColor;
-varying vec3 interpPosition;
+varying vec3 noisePosition;
 varying float sunFactor;
 
 
@@ -91,7 +91,7 @@ vec3 hsv2rgb(vec3 c)
 
 
 void main() {
-    float noise = snoise(interpPosition.xz) /* + snoise(interpPosition.xz*10.0) */;
+    float noise = snoise(noisePosition.xz) /* + snoise(noisePosition.xz*10.0) */;
 
     const vec3 factor = vec3(1.0/65.0, 1.0/19.0, 1.0/6.55e4);
     const vec3 offsetHSV = vec3(0.5, 0.5, 0.5);
