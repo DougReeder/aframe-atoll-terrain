@@ -101,7 +101,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         }
         vertexLookup[SCAN_SIZE+1] = {};
 
-        // vertex colors & behaviors
+        // vertex colors & behaviors, and faces
         let pitColor = new THREE.Color(0x404040);   // dark gray
         pitColor.lerp(LAND_YIN_COLOR, 0.75);
         const SCALE5 = UNIT_SIZE * 5, SCALE25 = UNIT_SIZE * 25;
@@ -113,28 +113,33 @@ AFRAME.registerGeometry('atoll-terrain', {
         const BEHAVIOR_WAVES = 10;
         let vertexBehavior = new Array(vertices.length);   // one element (behavior enum) per vertex
 
+        let faceIndices = [];   // three elements (vertex indexes) per face
+
         for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
             for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
-                let vertexInd = vertexLookup[i][j];
-                let vertex = vertices[vertexInd];
-                if (vertex) {
-                    if (vertex.y > 0) {   // above sea level
-                        let mix = (1.73205 + perlin.noise((vertex.x+data.middleRadius) / SCALE5, (vertex.z+data.middleRadius) / SCALE5, SEED)
-                            + perlin.noise((vertex.x+data.middleRadius) / SCALE25, (vertex.z+data.middleRadius) / SCALE25, SEED)) / 3.4641;
+                let vertexAInd = vertexLookup[i][j];
+                let vertexA = vertices[vertexAInd];
+                if (vertexA) {
+                    let vertexBInd = vertexLookup[i][j-1];
+                    let vertexCInd = vertexLookup[i-1][j-1];
+                    let vertexDInd = vertexLookup[i-1][j];
+                    if (vertexA.y > 0) {   // above sea level
+                        let mix = (1.73205 + perlin.noise((vertexA.x+data.middleRadius) / SCALE5, (vertexA.z+data.middleRadius) / SCALE5, SEED)
+                            + perlin.noise((vertexA.x+data.middleRadius) / SCALE25, (vertexA.z+data.middleRadius) / SCALE25, SEED)) / 3.4641;
                         let color = LAND_YIN_COLOR.clone();
                         color.lerp(LAND_YANG_COLOR, mix);
                         colors.push(color.r, color.g, color.b);
-                        vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
+                        vertexBehavior[vertexAInd] = BEHAVIOR_STATIONARY;
                     } else {   // sea level
-                        let r = Math.sqrt(vertex.x*vertex.x + vertex.z*vertex.z);
+                        let r = Math.sqrt(vertexA.x*vertexA.x + vertexA.z*vertexA.z);
                         if (r > INNER_RADIUS) {
                             colors.push(seaAverageColor.r, seaAverageColor.g, seaAverageColor.b);
-                            vertexBehavior[vertexInd] = BEHAVIOR_WAVES;
+                            vertexBehavior[vertexAInd] = BEHAVIOR_WAVES;
                         } else {
                             let neighbors = [];
-                            neighbors[0] = vertices[vertexLookup[i][j - 1]];
-                            neighbors[1] = vertices[vertexLookup[i - 1][j - 1]];
-                            neighbors[2] = vertices[vertexLookup[i - 1][j]];
+                            neighbors[0] = vertices[vertexBInd];
+                            neighbors[1] = vertices[vertexCInd];
+                            neighbors[2] = vertices[vertexDInd];
                             neighbors[3] = vertices[vertexLookup[i][j + 1]];
                             neighbors[4] = vertices[vertexLookup[i + 1][j + 1]];
                             neighbors[5] = vertices[vertexLookup[i + 1][j]];
@@ -149,39 +154,23 @@ AFRAME.registerGeometry('atoll-terrain', {
                                 }
                             }
                             if (land === 0) {   // away from shore
-                                let mix = (1.73205 + perlin.noise((vertex.x+FAR) / SCALE3, (vertex.z+FAR) / SCALE3, SEED)
-                                    + perlin.noise((vertex.x+FAR) / SCALE12, (vertex.z+FAR) / SCALE12, SEED)) / 3.4641;
+                                let mix = (1.73205 + perlin.noise((vertexA.x+FAR) / SCALE3, (vertexA.z+FAR) / SCALE3, SEED)
+                                    + perlin.noise((vertexA.x+FAR) / SCALE12, (vertexA.z+FAR) / SCALE12, SEED)) / 3.4641;
                                 let color = SEA_YIN_COLOR.clone();
                                 color.lerp(SEA_YANG_COLOR, mix);
                                 colors.push(color.r, color.g, color.b);
-                                vertexBehavior[vertexInd] = BEHAVIOR_WAVES;
+                                vertexBehavior[vertexAInd] = BEHAVIOR_WAVES;
                             } else if (sea === 0) {   // pit completely surrounded by land
                                 colors.push(pitColor.r, pitColor.g, pitColor.b);
-                                vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
+                                vertexBehavior[vertexAInd] = BEHAVIOR_STATIONARY;
                             } else {
                                 let color = BEACH_COLOR.clone();
                                 color.lerp(LAND_YIN_COLOR, land / (land+sea));
                                 colors.push(color.r, color.g, color.b);
-                                vertexBehavior[vertexInd] = BEHAVIOR_STATIONARY;
+                                vertexBehavior[vertexAInd] = BEHAVIOR_STATIONARY;
                             }
                         }
                     }
-                }
-            }
-        }
-
-        // faces
-        let faceIndices = [];   // three elements (vertex indexes) per face
-        for (let i= -SCAN_SIZE; i<=SCAN_SIZE; ++i) {
-            for (let j = -SCAN_SIZE; j <= SCAN_SIZE; ++j) {
-                let vertexAInd = vertexLookup[i][j];
-                if (vertices[vertexAInd]) {
-                    let vertexBInd = vertexLookup[i][j-1];
-
-                    let vertexCInd = vertexLookup[i-1][j-1];
-
-                    let vertexDInd = vertexLookup[i-1][j];
-
                     if (typeof vertexBInd !== 'undefined' && typeof vertexCInd !== 'undefined') {
                         faceIndices.push(vertexAInd, vertexBInd, vertexCInd);
                     }
@@ -191,7 +180,6 @@ AFRAME.registerGeometry('atoll-terrain', {
                 }
             }
         }
-
 
 
         // console.log("positions.length="+positions.length,
