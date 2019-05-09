@@ -40,6 +40,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         let seaAverageColor = SEA_YIN_COLOR.clone();
         seaAverageColor.lerp(SEA_YANG_COLOR, 0.5);
         const BEACH_COLOR = new THREE.Color(0x71615b);   // brownish-gray beach
+        const ROCK_COLOR = new THREE.Color(0x837E7C);   // granite
 
         if (data.log) {
             console.log("atoll-terrain", "plateauRadius="+data.plateauRadius, "plateauElevation="+data.plateauElevation,
@@ -124,11 +125,42 @@ AFRAME.registerGeometry('atoll-terrain', {
                     let vertexCInd = vertexLookup[i-1][j-1];
                     let vertexDInd = vertexLookup[i-1][j];
                     if (vertexA.y > 0) {   // above sea level
-                        let mix = (1.73205 + perlin.noise((vertexA.x+data.middleRadius) / SCALE5, (vertexA.z+data.middleRadius) / SCALE5, SEED)
-                            + perlin.noise((vertexA.x+data.middleRadius) / SCALE25, (vertexA.z+data.middleRadius) / SCALE25, SEED)) / 3.4641;
-                        let color = LAND_YIN_COLOR.clone();
-                        color.lerp(LAND_YANG_COLOR, mix);
-                        colors.push(color.r, color.g, color.b);
+                        let neighbors = new Array(6);
+                        neighbors[0] = vertices[vertexBInd];
+                        neighbors[1] = vertices[vertexCInd];
+                        neighbors[2] = vertices[vertexDInd];
+                        neighbors[3] = vertices[vertexLookup[i][j + 1]];
+                        neighbors[4] = vertices[vertexLookup[i + 1][j + 1]];
+                        neighbors[5] = vertices[vertexLookup[i + 1][j]];
+                        let nearby = new Array(12);
+                        nearby[ 0] = vertices[vertexLookup[i  ][j-2]];
+                        nearby[ 1] = vertices[vertexLookup[i-1][j-2]];
+                        nearby[ 2] = vertices[vertexLookup[i-2][j-2]];
+                        nearby[ 3] = vertices[vertexLookup[i-2][j-1]];
+                        nearby[ 4] = vertices[vertexLookup[i-2][j  ]];
+                        nearby[ 5] = vertices[vertexLookup[i-1][j+1]];
+                        nearby[ 6] = vertices[vertexLookup[i  ][j+2]];
+                        nearby[ 7] = vertices[vertexLookup[i+1][j+2]];
+                        nearby[ 8] = vertices[vertexLookup[i+2][j+2]];
+                        nearby[ 9] = vertices[vertexLookup[i+2][j+1]];
+                        nearby[10] = vertices[vertexLookup[i+2][j  ]];
+                        nearby[11] = vertices[vertexLookup[i+1][j-1]];
+                        let convolution = vertexA.y * 7;   // 1 extra to skew toward higher elevations
+                        for (let p=0; p<6; ++p) {
+                            convolution += neighbors[p].y * 3;
+                        }
+                        for (let p=0; p<12; ++p) {
+                            convolution += nearby[p].y * -2;
+                        }
+                        if (convolution > 70) {   // local peak and/or high elevation
+                            colors.push(ROCK_COLOR.r, ROCK_COLOR.g, ROCK_COLOR.b);
+                        } else {
+                            let mix = (1.73205 + perlin.noise((vertexA.x + data.middleRadius) / SCALE5, (vertexA.z + data.middleRadius) / SCALE5, SEED)
+                                + perlin.noise((vertexA.x + data.middleRadius) / SCALE25, (vertexA.z + data.middleRadius) / SCALE25, SEED)) / 3.4641;
+                            let color = LAND_YIN_COLOR.clone();
+                            color.lerp(LAND_YANG_COLOR, mix);
+                            colors.push(color.r, color.g, color.b);
+                        }
                         vertexBehavior[vertexAInd] = BEHAVIOR_STATIONARY;
                     } else {   // sea level
                         let r = Math.sqrt(vertexA.x*vertexA.x + vertexA.z*vertexA.z);
