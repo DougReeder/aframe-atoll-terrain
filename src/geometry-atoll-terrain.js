@@ -25,7 +25,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         const SIZE = Math.round(data.middleRadius / data.unitSize);
         const UNIT_SIZE = data.middleRadius / SIZE;
 
-        const PLATEAU_EDGE = data.plateauRadius + UNIT_SIZE;
+        const PLATEAU_EDGE = data.plateauRadius < data.middleRadius-UNIT_SIZE ? data.plateauRadius + UNIT_SIZE : data.middleRadius-UNIT_SIZE;
 
         const INNER_RADIUS = (SIZE-1) * UNIT_SIZE + 0.0001;
         const OUTER_RADIUS = (SIZE+1) * UNIT_SIZE + 0.0001;
@@ -43,7 +43,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         const ROCK_COLOR = new THREE.Color(0x837E7C);   // granite
 
         if (data.log) {
-            console.log("atoll-terrain", "plateauRadius="+data.plateauRadius, "plateauElevation="+data.plateauElevation,
+            console.log("atoll-terrain", "PLATEAU_EDGE="+PLATEAU_EDGE, "plateauElevation="+data.plateauElevation,
                 "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }

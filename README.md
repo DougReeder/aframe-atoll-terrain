@@ -47,7 +47,7 @@ Typically, you'll leave the entity position and rotation as zero, but you don't 
 ### plateau-radius
 * default: 10
 * minimum: 0
-* maximum: middle-radius
+* maximum: middle-radius - unit-size
 
 Radius of the central plateau, in meters.
 If radius is 0, there is no plateau.
