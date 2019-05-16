@@ -47,7 +47,7 @@ Typically, you'll leave the entity position and rotation as zero, but you don't 
 ### plateau-radius
 * default: 10
 * minimum: 0
-* maximum: middle-radius - unit-size
+* maximum: middle-radius - 2*unit-size
 
 Radius of the central plateau, in meters.
 If radius is 0, there is no plateau.
@@ -57,6 +57,11 @@ If radius is 0, there is no plateau.
 * default: 1
 
 Set to 0 to make the "plateau" part of the sea.
+
+### plateau-yin-color, plateau-yang-color
+* default: land-yin-color, land-yang-color
+
+Values close to land-yin-color and land-yang-color typically work best.
 
 
 ### middle-radius

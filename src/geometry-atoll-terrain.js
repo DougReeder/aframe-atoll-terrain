@@ -8,13 +8,15 @@ AFRAME.registerGeometry('atoll-terrain', {
         buffer: {type: 'boolean', default: false},
         plateauRadius: {type: 'number', default: 10, min: 0},
         plateauElevation: {type: 'number', default: 1},
+        plateauYinColor: {type: 'color', default: undefined},
+        plateauYangColor: {type: 'color', default: undefined},
         middleRadius: {type: 'number', default: 100, min: 10},
         unitSize: {type: 'number', default: 1, min: 0.1, max: 1000},
         far: {type: 'number', default: 4000},
         landYinColor: {type: 'color', default: '#528d04'},
         landYangColor: {type: 'color', default: '#278d53'},
-        seaYinColor: {type: 'color'},
-        seaYangColor: {type: 'color'},
+        seaYinColor: {type: 'color', default: '#005e85'},
+        seaYangColor: {type: 'color', default: '#2571cf'},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
@@ -25,7 +27,8 @@ AFRAME.registerGeometry('atoll-terrain', {
         const SIZE = Math.round(data.middleRadius / data.unitSize);
         const UNIT_SIZE = data.middleRadius / SIZE;
 
-        const PLATEAU_EDGE = data.plateauRadius < data.middleRadius-UNIT_SIZE ? data.plateauRadius + UNIT_SIZE : data.middleRadius-UNIT_SIZE;
+        const PLATEAU_RADIUS = data.plateauRadius < data.middleRadius-2*UNIT_SIZE ? data.plateauRadius : data.middleRadius-2*UNIT_SIZE;
+        const PLATEAU_EDGE = PLATEAU_RADIUS + UNIT_SIZE;
 
         const INNER_RADIUS = (SIZE-1) * UNIT_SIZE + 0.0001;
         const OUTER_RADIUS = (SIZE+1) * UNIT_SIZE + 0.0001;
@@ -35,6 +38,8 @@ AFRAME.registerGeometry('atoll-terrain', {
 
         const LAND_YIN_COLOR = new THREE.Color(data.landYinColor);
         const LAND_YANG_COLOR = new THREE.Color(data.landYangColor);
+        const PLATEAU_YIN_COLOR = new THREE.Color(data.plateauYinColor ? data.plateauYinColor : data.landYinColor);
+        const PLATEAU_YANG_COLOR = new THREE.Color(data.plateauYangColor ? data.plateauYangColor : data.landYangColor);
         const SEA_YIN_COLOR = new THREE.Color(data.seaYinColor);
         const SEA_YANG_COLOR = new THREE.Color(data.seaYangColor);
         let seaAverageColor = SEA_YIN_COLOR.clone();
@@ -121,10 +126,18 @@ AFRAME.registerGeometry('atoll-terrain', {
                 let vertexAInd = vertexLookup[i][j];
                 let vertexA = vertices[vertexAInd];
                 if (vertexA) {
+                    let r = Math.sqrt(vertexA.x*vertexA.x + vertexA.z*vertexA.z);
                     let vertexBInd = vertexLookup[i][j-1];
                     let vertexCInd = vertexLookup[i-1][j-1];
                     let vertexDInd = vertexLookup[i-1][j];
-                    if (vertexA.y > 0) {   // above sea level
+                    if (data.plateauRadius > 0 && r < PLATEAU_RADIUS && (data.plateauYinColor || data.plateauYangColor)) {
+                        let mix = (1.73205 + perlin.noise((vertexA.x + data.middleRadius) / SCALE3, (vertexA.z + data.middleRadius) / SCALE3, SEED)
+                            + perlin.noise((vertexA.x + data.middleRadius) / SCALE12, (vertexA.z + data.middleRadius) / SCALE12, SEED)) / 3.4641;
+                        let color = PLATEAU_YIN_COLOR.clone();
+                        color.lerp(PLATEAU_YANG_COLOR, mix);
+                        colors.push(color.r, color.g, color.b);
+                        vertexBehavior[vertexAInd] = vertexA.y > 0 ? BEHAVIOR_STATIONARY : BEHAVIOR_WAVES;
+                    } else if (vertexA.y > 0) {   // above sea level
                         let neighbors = new Array(6);
                         neighbors[0] = vertices[vertexBInd];
                         neighbors[1] = vertices[vertexCInd];
@@ -163,7 +176,6 @@ AFRAME.registerGeometry('atoll-terrain', {
                         }
                         vertexBehavior[vertexAInd] = BEHAVIOR_STATIONARY;
                     } else {   // sea level
-                        let r = Math.sqrt(vertexA.x*vertexA.x + vertexA.z*vertexA.z);
                         if (r > INNER_RADIUS) {
                             colors.push(seaAverageColor.r, seaAverageColor.g, seaAverageColor.b);
                             vertexBehavior[vertexAInd] = BEHAVIOR_WAVES;
