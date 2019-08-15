@@ -38,7 +38,9 @@ AFRAME.registerComponent('moving-sun', {
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
     <a-sphere position="0 16.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <a-atoll-terrain plateau-radius="5" plateau-elevation="15"
+    <!-- terrain which is likely to have a good vista from the plateau, and runs well on mobile -->
+    <a-atoll-terrain mean-elevation="-20"
+                     plateau-radius="5" plateau-elevation="15"
                      middle-radius="400" unit-size="4" far="4000"
                      sun-position="0.8 0.6 0"
                      log="true" flat-shading="false">

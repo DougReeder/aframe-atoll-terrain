@@ -6,6 +6,7 @@ import ImprovedNoise from './ImprovedNoise';
 AFRAME.registerGeometry('atoll-terrain', {
     schema: {
         buffer: {type: 'boolean', default: false},
+        meanElevation: {type: 'number', default: 10},
         plateauRadius: {type: 'number', default: 10, min: 0},
         plateauElevation: {type: 'number', default: 1},
         plateauYinColor: {type: 'color', default: undefined},
@@ -71,7 +72,7 @@ AFRAME.registerGeometry('atoll-terrain', {
                     if (data.plateauRadius > 0 && r <= PLATEAU_EDGE) {
                         y = data.plateauElevation;
                     } else if (r <= INNER_RADIUS) {
-                        y = 10;
+                        y = data.meanElevation;
                         // generates smooth noisy terrain
                         for (let quality = 25; quality <= 1500; quality *= 5) {
                             y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 150);

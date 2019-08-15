@@ -44,6 +44,12 @@ Parameters
 Typically, you'll leave the entity position and rotation as zero, but you don't have to.
 
 
+### mean-elevation
+* default: 10
+
+The average elevation of the high-resolution area, in meters (before the sea floods everything below 0).
+
+
 ### plateau-radius
 * default: 10
 * minimum: 0
