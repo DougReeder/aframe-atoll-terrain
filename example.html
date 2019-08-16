@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>aframe-atoll-terrain primitive example</title>
     <meta name="description" content="An example A-Frame WebVR scene with an aframe-atoll-terrain (and an aframe-simple-sun-sky)">
-    <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.2/simple-sun-sky.js"></script>
     <script src="dist/aframe-atoll-terrain.js"></script>
     <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.9.0/dist/aframe-atoll-terrain.js"></script>-->
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.controls.min.js"></script>
     <script>
 AFRAME.registerComponent('moving-sun', {
     init: function () {
@@ -46,8 +47,10 @@ AFRAME.registerComponent('moving-sun', {
                      log="true" flat-shading="false">
     </a-atoll-terrain>
 
-    <a-entity id="armature" position="0 16.6 0">
-        <a-entity camera look-controls wasd-controls>
+    <a-entity id="armature" position="0 15 0" movement-controls="fly:true; speed:0.5">
+        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
+        <a-entity hand-controls="left"></a-entity>
+        <a-entity hand-controls="right"></a-entity>
     </a-entity>
 </a-scene>
 </body>
