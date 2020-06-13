@@ -238,5 +238,41 @@ AFRAME.registerGeometry('atoll-terrain', {
         bufferGeometry.addAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ) );
         bufferGeometry.addAttribute('behavior', new THREE.Float32BufferAttribute(vertexBehavior,  1));
         this.geometry = bufferGeometry;
+
+        data.getElevation = (x,z) => {
+            const i = x / SQRT3HALF / UNIT_SIZE;
+            const j = (z + (x/SQRT3HALF/2)) / UNIT_SIZE;
+            const nearVertices = [];
+            let index;
+            if (vertexLookup[Math.floor(i)] && (index = vertexLookup[Math.floor(i)][Math.floor(j)])) {
+                nearVertices.push(vertices[index]);
+            }
+            if (vertexLookup[Math.floor(i)] && (index = vertexLookup[Math.floor(i)][Math.ceil(j)])) {
+                nearVertices.push(vertices[index]);
+            }
+            if (vertexLookup[Math.ceil(i)] && (index = vertexLookup[Math.ceil(i)][Math.floor(j)])) {
+                nearVertices.push(vertices[index]);
+            }
+            if (vertexLookup[Math.ceil(i)] && (index = vertexLookup[Math.ceil(i)][Math.ceil(j)])) {
+                nearVertices.push(vertices[index]);
+            }
+
+            let elevSum = 0;
+            let scoreSum = 0;
+            nearVertices.forEach( vert => {
+                let score = 1 - (Math.sqrt(Math.pow(x-vert.x, 2) + Math.pow(z-vert.z, 2)) / UNIT_SIZE);
+                if (score < 0) {score = 0}
+                elevSum += vert.y * score;
+                scoreSum += score;
+            });
+            // if (nearVertices.length < 4) {
+            //     console.log("scoreSum:", scoreSum.toFixed(2), "   ", nearVertices.map(v => v.x.toFixed(2) + "," + v.z.toFixed(2) + " " + v.y.toFixed(2)));
+            // }
+            if (scoreSum > 0) {   // at least one vertex was near
+                return elevSum / scoreSum;
+            } else {   // outside all usable vertices, the elevation is 0
+                return 0;
+            }
+        }
     }
 });
