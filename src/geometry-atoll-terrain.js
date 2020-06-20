@@ -1,5 +1,5 @@
 // geometry-atoll-terrain.js - geometry for aframe-atoll-terrain component
-// Copyright © 2019 P. Douglas Reeder under the MIT License
+// Copyright © 2019-2020 P. Douglas Reeder under the MIT License
 
 import ImprovedNoise from './ImprovedNoise';
 
@@ -16,8 +16,8 @@ AFRAME.registerGeometry('atoll-terrain', {
         far: {type: 'number', default: 4000},
         landYinColor: {type: 'color', default: '#528d04'},
         landYangColor: {type: 'color', default: '#278d53'},
-        seaYinColor: {type: 'color', default: '#005e85'},
-        seaYangColor: {type: 'color', default: '#2571cf'},
+        seaYinColor: {type: 'color', default: '#096297'},
+        seaYangColor: {type: 'color', default: '#1b6cbc'},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
@@ -75,7 +75,8 @@ AFRAME.registerGeometry('atoll-terrain', {
                         y = data.meanElevation;
                         // generates smooth noisy terrain
                         for (let quality = 25; quality <= 1500; quality *= 5) {
-                            y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 150);
+                            // The largest scale (625) is constrained to avoid all mountain or all sea.
+                            y += perlin.noise((x+data.middleRadius) / quality, (z+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 62.5);
                         }
 
                         if (data.plateauRadius > 0) {
@@ -85,7 +86,8 @@ AFRAME.registerGeometry('atoll-terrain', {
 
                         if (y > 0) {
                             let quality = 5;
-                            y += perlin.noise((x + data.middleRadius) / quality, (z + data.middleRadius) / quality, SEED) * quality / 2;
+                            // This has a weaker effect, to avoid covering flattish terrain with divots.
+                            y += perlin.noise((x + data.middleRadius) / quality, (z + data.middleRadius) / quality, SEED) * quality / 7;
                         }
 
                         // flattens the bottom, so it's continuous with the plain
@@ -166,7 +168,7 @@ AFRAME.registerGeometry('atoll-terrain', {
                         for (let p=0; p<12; ++p) {
                             convolution += nearby[p].y * -2;
                         }
-                        if (convolution > 70) {   // local peak and/or high elevation
+                        if (convolution > 45) {   // local peak and/or high elevation
                             colors.push(ROCK_COLOR.r, ROCK_COLOR.g, ROCK_COLOR.b);
                         } else {
                             let mix = (1.73205 + perlin.noise((vertexA.x + data.middleRadius) / SCALE5, (vertexA.z + data.middleRadius) / SCALE5, SEED)

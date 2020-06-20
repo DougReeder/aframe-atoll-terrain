@@ -7,7 +7,7 @@
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.2/simple-sun-sky.js"></script>
     <script src="dist/aframe-atoll-terrain.js"></script>
-    <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.5.2/dist/aframe-atoll-terrain.js"></script>-->
+    <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.6.1/dist/aframe-atoll-terrain.js"></script>-->
     <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v6.1.0/dist/aframe-extras.controls.min.js"></script>
     <script>
 AFRAME.registerComponent('moving-sun', {
@@ -34,21 +34,21 @@ AFRAME.registerComponent('moving-sun', {
 </head>
 <body>
 <a-scene moving-sun background="color:#87cefa">
-    <a-simple-sun-sky sun-position="0.8 0.6 0"></a-simple-sun-sky>
+    <a-simple-sun-sky sun-position="0.8 0.6 0" radius="2000"></a-simple-sun-sky>
     <a-entity light="type: ambient; color: #888"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
 
-    <a-sphere position="0 16.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
-    <!-- terrain which is likely to have a good vista from the plateau, and runs well on mobile -->
-    <a-atoll-terrain mean-elevation="-20"
-                     plateau-radius="5" plateau-elevation="15"
-                     middle-radius="400" unit-size="4" far="4000"
+    <a-sphere position="0 11.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
+    <!-- terrain which is likely to have a good vista from the plateau, and runs ok on mobile -->
+    <a-atoll-terrain mean-elevation="3"
+                     plateau-radius="10" plateau-elevation="10"
+                     middle-radius="300" unit-size="2" far="1900"
                      sun-position="0.8 0.6 0"
                      log="true" flat-shading="false">
     </a-atoll-terrain>
 
-    <a-entity id="armature" position="0 15 0" movement-controls="fly:true; speed:0.5">
-        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
+    <a-entity id="armature" position="0 10 0" movement-controls="fly:true; speed:0.5">
+        <a-entity camera="far:2500; near:0.05" position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
         <a-entity hand-controls="hand:left"></a-entity>
         <a-entity hand-controls="hand:right"></a-entity>
     </a-entity>

@@ -23,7 +23,7 @@ Usage
 
 Include using 
 ```html
-<script src="https://unpkg.com/aframe-atoll-terrain@^0.5.2/dist/aframe-atoll-terrain.js"></script>
+<script src="https://unpkg.com/aframe-atoll-terrain@^0.6.1/dist/aframe-atoll-terrain.js"></script>
 ```
 
 
