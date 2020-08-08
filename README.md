@@ -23,14 +23,14 @@ Usage
 
 Include using 
 ```html
-<script src="https://unpkg.com/aframe-atoll-terrain@^0.6.1/dist/aframe-atoll-terrain.js"></script>
+<script src="https://unpkg.com/aframe-atoll-terrain@^0.7.0/dist/aframe-atoll-terrain.js"></script>
 ```
 
 
 Declare it as a direct child of the scene (normally):
 ```html
 <a-scene>
-    <a-atoll-terrain plateau-radius="5" plateau-elevation="25" middle-radius="400" unit-size="4" far="4000"
+    <a-atoll-terrain plateau-radius="5" middle-radius="400" unit-size="4" far="4000"
                      land-yin-color="#528d04" land-yang-color="#278d53" sea-yin-color="#005e85" sea-yang-color="#2571cf"
                      sun-position="0.8 0.6 0">
     </a-atoll-terrain>
@@ -59,10 +59,10 @@ Radius of the central plateau, in meters.
 If radius is 0, there is no plateau.
 
 
-### plateau-elevation
+### plateau-elevation-min
 * default: 1
 
-Set to 0 to make the "plateau" part of the sea.
+Minimum elevation of the plateau.  Can be 0, in which case the "plateau" might be sea or land.
 
 ### plateau-yin-color, plateau-yang-color
 * default: land-yin-color, land-yang-color

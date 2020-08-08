@@ -23,7 +23,7 @@ AFRAME.registerPrimitive('a-atoll-terrain', {
     mappings: {
         'mean-elevation': 'geometry.meanElevation',
         'plateau-radius': 'geometry.plateauRadius',
-        'plateau-elevation': 'geometry.plateauElevation',
+        'plateau-elevation-min': 'geometry.plateauElevationMin',
         'plateau-yin-color': 'geometry.plateauYinColor',
         'plateau-yang-color': 'geometry.plateauYangColor',
         'middle-radius': 'geometry.middleRadius',

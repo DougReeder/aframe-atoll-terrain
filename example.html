@@ -7,9 +7,23 @@
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-simple-sun-sky@^1.2.2/simple-sun-sky.js"></script>
     <script src="dist/aframe-atoll-terrain.js"></script>
-    <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.6.1/dist/aframe-atoll-terrain.js"></script>-->
+    <!--<script src="https://unpkg.com/aframe-atoll-terrain@^0.7.0/dist/aframe-atoll-terrain.js"></script>-->
     <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v6.1.0/dist/aframe-extras.controls.min.js"></script>
     <script>
+AFRAME.registerComponent('place-ball', {
+    init: function () {
+      const terrainGeometry = this.el.querySelector('a-atoll-terrain').getAttribute('geometry');
+
+      const armatureEl = document.getElementById('armature');
+      const armaturePosition = armatureEl.getAttribute('position');
+      armaturePosition.y = terrainGeometry.getElevation(armaturePosition.x, armaturePosition.z) + 1.6;
+
+      const sphereEl = document.querySelector('a-sphere');
+      const spherePosition = sphereEl.getAttribute('position');
+      spherePosition.y = terrainGeometry.getElevation(spherePosition.x, spherePosition.z) + 1.6;
+    }
+});
+
 AFRAME.registerComponent('moving-sun', {
     init: function () {
         this.positionSph = new THREE.Spherical(1, Math.PI/2, 0);
@@ -33,7 +47,7 @@ AFRAME.registerComponent('moving-sun', {
     </script>
 </head>
 <body>
-<a-scene moving-sun background="color:#87cefa">
+<a-scene moving-sun place-ball background="color:#87cefa">
     <a-simple-sun-sky sun-position="0.8 0.6 0" radius="2000"></a-simple-sun-sky>
     <a-entity light="type: ambient; color: #888"></a-entity>
     <a-entity id="directional" light="type: directional; color: #FFF; intensity: 0.6" position="0.7 0.4 -1"></a-entity>
@@ -41,7 +55,7 @@ AFRAME.registerComponent('moving-sun', {
     <a-sphere position="0 11.6 -5" radius="0.6" color="#EF2D5E" shadow></a-sphere>
     <!-- terrain which is likely to have a good vista from the plateau, and runs ok on mobile -->
     <a-atoll-terrain mean-elevation="3"
-                     plateau-radius="10" plateau-elevation="10"
+                     plateau-radius="10"
                      middle-radius="300" unit-size="2" far="1900"
                      sun-position="0.8 0.6 0"
                      log="true" flat-shading="false">

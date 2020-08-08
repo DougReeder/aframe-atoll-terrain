@@ -8,7 +8,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         buffer: {type: 'boolean', default: false},
         meanElevation: {type: 'number', default: 10},
         plateauRadius: {type: 'number', default: 10, min: 0},
-        plateauElevation: {type: 'number', default: 1},
+        plateauElevationMin: {type: 'number', default: 1, min: 0},
         plateauYinColor: {type: 'color', default: undefined},
         plateauYangColor: {type: 'color', default: undefined},
         middleRadius: {type: 'number', default: 100, min: 10},
@@ -48,8 +48,16 @@ AFRAME.registerGeometry('atoll-terrain', {
         const BEACH_COLOR = new THREE.Color(0x71615b);   // brownish-gray beach
         const ROCK_COLOR = new THREE.Color(0x837E7C);   // granite
 
+        let plateauElevation = data.meanElevation;
+        // plateau has elevation of center
+        for (let quality = 25; quality <= 1500; quality *= 5) {
+            // The largest scale (625) is constrained to avoid all mountain or all sea.
+            plateauElevation += perlin.noise((0+data.middleRadius) / quality, (0+data.middleRadius) / quality, SEED) * Math.min(quality / 2, 62.5);
+        }
+        plateauElevation = Math.max(plateauElevation, data.plateauElevationMin);
+
         if (data.log) {
-            console.log("atoll-terrain", "PLATEAU_EDGE="+PLATEAU_EDGE, "plateauElevation="+data.plateauElevation,
+            console.log("atoll-terrain", "PLATEAU_EDGE="+PLATEAU_EDGE, "plateauElevation="+plateauElevation,
                 "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }
@@ -70,7 +78,7 @@ AFRAME.registerGeometry('atoll-terrain', {
                 if (r <= OUTER_RADIUS) {
                     let y;
                     if (data.plateauRadius > 0 && r <= PLATEAU_EDGE) {
-                        y = data.plateauElevation;
+                        y = plateauElevation;
                     } else if (r <= INNER_RADIUS) {
                         y = data.meanElevation;
                         // generates smooth noisy terrain
@@ -80,7 +88,7 @@ AFRAME.registerGeometry('atoll-terrain', {
                         }
 
                         if (data.plateauRadius > 0) {
-                            y = data.plateauElevation + (y - data.plateauElevation) * Math.min(r - PLATEAU_EDGE, MASK_EDGE) / MASK_EDGE;
+                            y = plateauElevation + (y - plateauElevation) * Math.min(r - PLATEAU_EDGE, MASK_EDGE) / MASK_EDGE;
                         }
                         y *= Math.min(INNER_RADIUS - r, MASK_EDGE) / MASK_EDGE;
 
