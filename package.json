@@ -29,7 +29,7 @@
   "homepage": "https://github.com/DougReeder/aframe-atoll-terrain#readme",
   "devDependencies": {
     "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3",
+    "webpack-cli": "^3.3.12",
     "webpack-glsl-loader": "^1.0.1"
   }
 }
