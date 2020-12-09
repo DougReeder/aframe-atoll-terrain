@@ -15,7 +15,7 @@ or [aframe-sun-sky](https://www.npmjs.com/package/aframe-sun-sky)
 
 [live example scene](https://dougreeder.github.io/aframe-atoll-terrain/example.html)
 Use VR controller joystick or touchpad to move around.  On desktop, drag to turn and use WASD keys to move.
-Reload several times to see some variations, especially if you don't see water.
+Reload several times to see some variations, especially if you don't see water from your initial location.
 
 
 Usage
