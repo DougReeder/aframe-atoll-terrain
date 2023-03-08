@@ -1,6 +1,6 @@
 {
   "name": "aframe-atoll-terrain",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "An A-Frame WebVR primitive that has a circle of high-resolution terrain near the origin, surrounded by a low-resolution plain that stretches to the horizon",
   "scripts": {
     "build": "webpack",

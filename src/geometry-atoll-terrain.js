@@ -1,5 +1,5 @@
 // geometry-atoll-terrain.js - geometry for aframe-atoll-terrain component
-// Copyright © 2019-2020 P. Douglas Reeder under the MIT License
+// Copyright © 2019-2023 P. Douglas Reeder under the MIT License
 
 import ImprovedNoise from './ImprovedNoise';
 
@@ -242,11 +242,11 @@ AFRAME.registerGeometry('atoll-terrain', {
 
         let bufferGeometry = new THREE.BufferGeometry();
         bufferGeometry.setIndex(faceIndices);
-        bufferGeometry.addAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ) );
+        bufferGeometry.setAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ) );
         bufferGeometry.computeVertexNormals();
         // geometry.computeBoundingBox();
-        bufferGeometry.addAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ) );
-        bufferGeometry.addAttribute('behavior', new THREE.Float32BufferAttribute(vertexBehavior,  1));
+        bufferGeometry.setAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ) );
+        bufferGeometry.setAttribute('behavior', new THREE.Float32BufferAttribute(vertexBehavior,  1));
         this.geometry = bufferGeometry;
 
         data.getElevation = (x,z) => {

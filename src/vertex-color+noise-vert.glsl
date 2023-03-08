@@ -1,9 +1,12 @@
 // vertex-color+noise-vert.glsl - vertex shader
-// Copyright © 2019 P. Douglas Reeder under the MIT License
+// Copyright © 2019,2023 P. Douglas Reeder under the MIT License
 
 uniform vec3 sunNormal;
 uniform vec3 wavesOffset;
 
+#ifndef USE_COLOR
+attribute vec3 color;
+#endif
 attribute float behavior;
 
 varying vec3 interpColor;
