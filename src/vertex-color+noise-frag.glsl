@@ -4,6 +4,7 @@
 varying vec3 interpColor;
 varying vec3 noisePosition;
 varying float sunFactor;
+varying float cameraZ;
 
 
 //
@@ -91,7 +92,10 @@ vec3 hsv2rgb(vec3 c)
 
 
 void main() {
-    float noise = snoise(noisePosition.xz) /* + snoise(noisePosition.xz*10.0) */;
+    float noise1 = snoise(noisePosition.xz * 2.);
+    float noise2 = snoise(noisePosition.xz * 4.);
+    float noise3 = snoise(noisePosition.xz * 8.);
+    float noise = mix(noise1, noise1 +  mix(noise2, noise2 + noise3, smoothstep(-15., -10., cameraZ)), smoothstep(-30., -15., cameraZ));
 
     const vec3 factor = vec3(1.0/65.0, 1.0/19.0, 1.0/6.55e4);
     const vec3 offsetHSV = vec3(0.5, 0.5, 0.5);

@@ -12,6 +12,7 @@ attribute float behavior;
 varying vec3 interpColor;
 varying vec3 noisePosition;
 varying float sunFactor;
+varying float cameraZ;
 
 void main() {
     interpColor = color;
@@ -21,5 +22,7 @@ void main() {
 
     sunFactor = 0.5 + max(dot(normal, sunNormal), 0.0);
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    vec4 cameraSpacePosition = modelViewMatrix * vec4(position, 1.0);
+    cameraZ = cameraSpacePosition.z;
+    gl_Position = projectionMatrix * cameraSpacePosition;
 }
