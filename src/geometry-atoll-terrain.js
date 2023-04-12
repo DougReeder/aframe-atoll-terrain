@@ -18,11 +18,12 @@ AFRAME.registerGeometry('atoll-terrain', {
         landYangColor: {type: 'color', default: '#278d53'},
         seaYinColor: {type: 'color', default: '#096297'},
         seaYangColor: {type: 'color', default: '#1b6cbc'},
+        seed: {type: 'number'},
         log: {type: 'boolean', default: false}
     },
     init: function (data) {
         const perlin = new ImprovedNoise();
-        const SEED = Math.random() * 100;
+        const SEED = (data.seed || Math.random()) * 100;
         const SQRT3HALF = Math.sqrt(3) / 2;
 
         const SIZE = Math.round(data.middleRadius / data.unitSize);
@@ -57,7 +58,7 @@ AFRAME.registerGeometry('atoll-terrain', {
         plateauElevation = Math.max(plateauElevation, data.plateauElevationMin);
 
         if (data.log) {
-            console.log("atoll-terrain", "PLATEAU_EDGE="+PLATEAU_EDGE, "plateauElevation="+plateauElevation,
+            console.log("atoll-terrain", "SEED="+SEED, "PLATEAU_EDGE="+PLATEAU_EDGE, "plateauElevation="+plateauElevation,
                 "SIZE="+SIZE, "SCAN_SIZE="+SCAN_SIZE, "UNIT_SIZE="+UNIT_SIZE,
                 "middleRadius="+data.middleRadius, "FAR="+FAR);
         }

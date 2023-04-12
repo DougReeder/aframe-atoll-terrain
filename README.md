@@ -121,6 +121,12 @@ If you're using one of the *-sun-sky primitives, set its sun-position to the sam
 If you use a different shader, the colors and sun-position will probably be ignored.
 
 
+### seed
+* default: random
+
+A number greater than zero and less than one, from which the terrain will be randomly generated.
+
+
 ### log
 * default: false
 

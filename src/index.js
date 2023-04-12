@@ -29,6 +29,7 @@ AFRAME.registerPrimitive('a-atoll-terrain', {
         'middle-radius': 'geometry.middleRadius',
         'unit-size': 'geometry.unitSize',
         'far': 'geometry.far',
+        'seed': 'geometry.seed',
         'log': 'geometry.log',
         'shader': 'material.shader',
         'land-yin-color': 'geometry.landYinColor',
