@@ -23,7 +23,7 @@ Usage
 
 Include using 
 ```html
-<script src="https://unpkg.com/aframe-atoll-terrain@^0.7.0/dist/aframe-atoll-terrain.js"></script>
+<script src="https://unpkg.com/aframe-atoll-terrain@^1.0.0/dist/aframe-atoll-terrain.js"></script>
 ```
 
 
@@ -44,12 +44,6 @@ Parameters
 Typically, you'll leave the entity position and rotation as zero, but you don't have to.
 
 
-### mean-elevation
-* default: 10
-
-The average elevation of the high-resolution area, in meters (before the sea floods everything below 0).
-
-
 ### plateau-radius
 * default: 10
 * minimum: 0
@@ -59,10 +53,23 @@ Radius of the central plateau, in meters.
 If radius is 0, there is no plateau.
 
 
-### plateau-elevation-min
+### plateau-elevation
+* minimum: 0
 * default: 1
 
-Minimum elevation of the plateau.  Can be 0, in which case the "plateau" might be sea or land.
+Elevation of the plateau.  If zero, forces there to be water in the center of the island.
+
+If this is zero and `plateau-radius` is a large fraction of `middle-radius`, you'll have a ring-shaped island - an atoll!
+
+
+### elevation-bias
+* default: 0
+
+When there is no plateau, this is the elevation of the high-resolution area before noise is applied, in meters.
+
+When there is a plateau, the elevation of the high-resolution area is automatically adjusted so the plateau blends in.
+Leave this at zero, unless you want a volcano or an isolated plateau.
+
 
 ### plateau-yin-color, plateau-yang-color
 * default: land-yin-color, land-yang-color
@@ -111,7 +118,7 @@ The color of the sea smoothly varies between these two extremes.
 * default: {x:-1.0, y:1.0, z:-1.0}
 
 The direction from which the sun is shining.
-This primitive ignores directional lights, but others may use them.
+This primitive ignores directional lights.
 If you're using one of the *-sun-sky primitives, set its sun-position to the same value.
 
 
@@ -132,6 +139,17 @@ A number greater than zero and less than one, from which the terrain will be ran
 
 Whether to write diagnostic data to the console. 
 
+
+Extracting Elevation data
+-------------------------
+
+The geometry component has a `getElevation` method, which returns the approximate elevation of a point:
+
+```javascript
+const terrainGeometry = this.el.querySelector('a-atoll-terrain').getAttribute('geometry');
+const spherePosition = document.querySelector('a-sphere').getAttribute('position');
+spherePosition.y = terrainGeometry.getElevation(spherePosition.x, spherePosition.z) + 1.6;
+```
 
 
 Development
